@@ -1,0 +1,254 @@
+/* ==========================================================================
+   CUVASOL AGENT CLOUD - AUTHENTICATION STYLES (styles/auth.css)
+   ========================================================================== */
+
+.auth-page-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.auth-card-wrap {
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+}
+
+.auth-card {
+  background: rgba(12, 18, 34, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-lg), 0 0 50px rgba(99, 102, 241, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--grad-primary);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-header .auth-logo {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+}
+
+.auth-header h2 {
+  font-size: 1.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.auth-header p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* 1-Click Demo Agent Fast Fill */
+.demo-quick-login-box {
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px dashed rgba(0, 240, 255, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.demo-login-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-login-info span:first-child {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--cyan-400);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.demo-login-info span:last-child {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Multi-Step Wizard Indicators */
+.signup-steps-bar {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.signup-steps-bar::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: var(--border-subtle);
+  z-index: 1;
+}
+
+.step-indicator {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.step-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+}
+
+.step-indicator.active .step-dot {
+  background: var(--indigo-600);
+  border-color: var(--cyan-400);
+  color: #fff;
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.step-indicator.completed .step-dot {
+  background: var(--emerald-500);
+  border-color: var(--emerald-400);
+  color: #fff;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.step-indicator.active .step-label {
+  color: #fff;
+}
+
+/* Channel Checkbox Grid for Step 2 */
+.channel-select-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.channel-card-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  background: rgba(16, 24, 44, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.channel-card-option:hover {
+  border-color: var(--border-medium);
+}
+
+.channel-card-option input[type="checkbox"],
+.channel-card-option input[type="radio"] {
+  accent-color: var(--cyan-400);
+  width: 16px;
+  height: 16px;
+}
+
+.channel-card-option.checked {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--indigo-500);
+}
+
+/* Auth Divider */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.auth-divider span {
+  padding: 0 0.75rem;
+}
+
+/* Auth Footer */
+.auth-footer {
+  margin-top: 1.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.auth-footer a {
+  color: var(--cyan-400);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 0.35rem;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  transition: color var(--transition-fast);
+}
+
+.auth-back-link:hover {
+  color: var(--cyan-400);
+}
