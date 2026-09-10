@@ -338,17 +338,22 @@ app.post('/api/agent/reset-data', requireAuth, (req, res) => {
   res.json({ success: true, message: 'Agent data reset to clean initial state.' });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Cuvasol Node.js API Server running on http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Cuvasol Node.js API Server running on http://localhost:${PORT}`);
+  });
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`\n⚠️  Port ${PORT} is currently in use by another running instance.`);
-    console.error(`💡 Tip: Close any existing terminal running 'npm run dev' or kill the existing node process, then try again.\n`);
-    process.exit(1);
-  } else {
-    console.error('Server error:', err);
-    process.exit(1);
-  }
-});
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n⚠️  Port ${PORT} is currently in use by another running instance.`);
+      console.error(`💡 Tip: Close any existing terminal running 'npm run dev' or kill the existing node process, then try again.\n`);
+      process.exit(1);
+    } else {
+      console.error('Server error:', err);
+      process.exit(1);
+    }
+  });
+}
+
+export { app };
+export default app;

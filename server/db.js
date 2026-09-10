@@ -9,7 +9,11 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DB_FILE = path.join(__dirname, 'data', 'store.json');
+const DB_FILE = process.env.VERCEL
+  ? path.join('/tmp', 'store.json')
+  : path.join(__dirname, 'data', 'store.json');
+
+const BUNDLED_DB_FILE = path.join(__dirname, 'data', 'store.json');
 
 // Helper to hash password with salt
 function hashPassword(password, salt = 'cuvasol_salt_2026') {
@@ -28,6 +32,15 @@ class Database {
       fs.mkdirSync(dir, { recursive: true });
     }
     if (!fs.existsSync(DB_FILE)) {
+      if (fs.existsSync(BUNDLED_DB_FILE)) {
+        try {
+          const bundledContent = fs.readFileSync(BUNDLED_DB_FILE, 'utf-8');
+          fs.writeFileSync(DB_FILE, bundledContent, 'utf-8');
+          return;
+        } catch (e) {
+          console.warn('Could not copy bundled DB file:', e);
+        }
+      }
       const initial = {
         users: [],
         campaigns: [],
