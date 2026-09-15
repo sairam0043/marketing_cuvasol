@@ -45,7 +45,12 @@ export function ReferralDashboard({ onNavigateLanding }) {
   }, [fetchReferralStats]);
 
   const referralCode = referralData.referralCode || user?.referralCode || 'AGENT-26';
-  const referralLink = `${window.location.origin}/#signup?ref=${referralCode}`;
+  const studentInviteLink = `https://tutor.cuvasol.com/register/student?ref=${referralCode}`;
+  const partnerInviteLink = `${window.location.origin}/#signup?ref=${referralCode}`;
+
+  const [activeLinkTab, setActiveLinkTab] = useState('student'); // 'student' or 'partner'
+  const [copiedStudentLink, setCopiedStudentLink] = useState(false);
+  const [copiedPartnerLink, setCopiedPartnerLink] = useState(false);
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(referralCode);
@@ -54,11 +59,24 @@ export function ReferralDashboard({ onNavigateLanding }) {
     setTimeout(() => setCopiedCode(false), 2500);
   };
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(referralLink);
-    setCopiedLink(true);
-    showToast('Referral link copied to clipboard! 🔗', 'success');
-    setTimeout(() => setCopiedLink(false), 2500);
+  const handleCopyStudentLink = () => {
+    navigator.clipboard.writeText(studentInviteLink);
+    setCopiedStudentLink(true);
+    showToast('Student invite link for tutor.cuvasol.com copied! 🎓', 'success');
+    setTimeout(() => setCopiedStudentLink(false), 2500);
+  };
+
+  const handleCopyPartnerLink = () => {
+    navigator.clipboard.writeText(partnerInviteLink);
+    setCopiedPartnerLink(true);
+    showToast('Marketer partner invite link copied! 🤝', 'success');
+    setTimeout(() => setCopiedPartnerLink(false), 2500);
+  };
+
+  const handleShareWhatsApp = () => {
+    const message = `🎓 Hey! Join me on Cuvasol Tutor for high-quality 1-on-1 tutoring classes with expert teachers!\n\n👉 Register your student account here:\n${studentInviteLink}\n\nUse my invite code: ${referralCode} to get started!`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   // Handler to simulate a friend signing up with this user's referral code
@@ -139,38 +157,30 @@ export function ReferralDashboard({ onNavigateLanding }) {
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                {user?.name || 'Agent'}
-              </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                {user?.email}
-              </span>
-            </div>
-
-            <div style={{
-              width: 38,
-              height: 38,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #00f0ff, #6366f1)',
-              color: '#060913',
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.9rem'
-            }}>
-              {user?.avatar || 'AG'}
-            </div>
-
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <button
-              onClick={logout}
+              onClick={() => onNavigateLanding('dashboard')}
               className="btn btn-secondary btn-sm"
-              style={{ borderRadius: '8px', padding: '6px 14px', fontSize: '0.82rem' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              Sign Out
+              <span>📊 Main Dashboard</span>
             </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ textAlign: 'right', display: 'none', md: 'block' }}>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user?.name || 'Agent'}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user?.email || 'agent@cuvasol.io'}</div>
+              </div>
+              <div className="user-avatar" style={{ width: 36, height: 36, fontSize: '0.85rem' }}>
+                {user?.avatar || 'AG'}
+              </div>
+              <button
+                onClick={logout}
+                className="btn btn-secondary btn-sm"
+                style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -178,16 +188,32 @@ export function ReferralDashboard({ onNavigateLanding }) {
       {/* Main Content Container */}
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '2.5rem 1.5rem 4rem 1.5rem' }}>
         
-        {/* Welcome Banner */}
+        {/* Header Title Section */}
         <div style={{ marginBottom: '2.5rem' }}>
-          <div style={{ display: 'inline-block', color: 'var(--cyan-400)', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-            ⚡ Referral Hub & Member Portal
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+            <button
+              onClick={() => onNavigateLanding('dashboard')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--cyan-400)',
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                padding: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              ← Back to Overview
+            </button>
           </div>
-          <h1 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-display)', fontWeight: 700, margin: '0 0 0.5rem 0' }}>
-            Welcome, <span style={{ background: 'linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{user?.name}</span>!
+          <h1 style={{ fontSize: '2.25rem', fontWeight: 800, fontFamily: 'var(--font-display)', margin: '0 0 0.5rem 0', letterSpacing: '-0.02em' }}>
+            Referral Rewards & Attribution
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', margin: 0, maxWidth: 650 }}>
-            Share your unique referral code with others. Anyone who signs up using your details is automatically tracked under your account in MongoDB.
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', margin: 0, maxWidth: 700 }}>
+            Share your student referral link for <strong>tutor.cuvasol.com</strong>. When a student registers and completes their first class, you earn <strong>₹500</strong> directly to your wallet!
           </p>
         </div>
 
@@ -201,17 +227,21 @@ export function ReferralDashboard({ onNavigateLanding }) {
               🎁 Your Personal Referral Code
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '0.75rem 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '0.75rem 0', flexWrap: 'nowrap' }}>
               <div style={{
                 background: 'rgba(0, 240, 255, 0.1)',
                 border: '1px dashed var(--cyan-400)',
                 color: '#00f0ff',
                 fontFamily: 'monospace',
-                fontSize: '1.5rem',
+                fontSize: '1.15rem',
                 fontWeight: 800,
-                padding: '0.6rem 1.25rem',
+                padding: '0.55rem 0.9rem',
                 borderRadius: '10px',
-                letterSpacing: '0.08em'
+                letterSpacing: '0.05em',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                flex: 1
               }}>
                 {referralCode}
               </div>
@@ -219,13 +249,13 @@ export function ReferralDashboard({ onNavigateLanding }) {
               <button
                 onClick={handleCopyCode}
                 className="btn btn-primary btn-sm"
-                style={{ height: 44, padding: '0 18px', borderRadius: '10px' }}
+                style={{ height: 40, padding: '0 14px', borderRadius: '10px', whiteSpace: 'nowrap', flexShrink: 0 }}
               >
-                {copiedCode ? '✓ Copied!' : 'Copy Code'}
+                {copiedCode ? '✓ Copied' : 'Copy Code'}
               </button>
             </div>
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Give this code to friends or clients to enter during registration.
+              Works across tutor.cuvasol.com student registrations and partner signups.
             </div>
           </div>
 
@@ -272,47 +302,145 @@ export function ReferralDashboard({ onNavigateLanding }) {
               </span>
             </div>
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Referral tracking is active 24/7 with instant synchronization.
+              ₹500 instant wallet credit unlocked on each completed class.
             </div>
           </div>
 
         </div>
 
-        {/* 1-Click Referral Link Share Box */}
-        <div className="glass-card" style={{ padding: '1.75rem', marginBottom: '2.5rem', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
-            <span style={{ fontSize: '1.2rem' }}>🔗</span>
-            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700 }}>Your Direct 1-Click Referral Link</h3>
-          </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
-            When someone opens this link, your referral code is automatically applied and pre-filled in their signup form.
-          </p>
+        {/* 1-Click Referral Link Share Box with Student & Partner Tabs */}
+        <div className="glass-card" style={{ padding: '1.75rem', marginBottom: '2.5rem', border: '1px solid rgba(0, 240, 255, 0.25)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.3rem' }}>🔗</span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700 }}>Your 1-Click Shareable Referral Links</h3>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Choose what type of link you want to share</span>
+              </div>
+            </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <input
-              type="text"
-              readOnly
-              value={referralLink}
-              style={{
-                flex: 1,
-                minWidth: 260,
-                background: 'rgba(15, 23, 42, 0.8)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '10px',
-                padding: '0.75rem 1rem',
-                color: '#38bdf8',
-                fontFamily: 'monospace',
-                fontSize: '0.9rem'
-              }}
-            />
-            <button
-              onClick={handleCopyLink}
-              className="btn btn-emerald"
-              style={{ padding: '0 24px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-            >
-              <span>{copiedLink ? '✓ Link Copied!' : 'Copy Direct Link'}</span>
-            </button>
+            {/* Toggle Tabs */}
+            <div style={{ display: 'inline-flex', background: 'rgba(15, 23, 42, 0.6)', padding: '4px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <button
+                type="button"
+                onClick={() => setActiveLinkTab('student')}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '7px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  background: activeLinkTab === 'student' ? 'linear-gradient(135deg, #00f0ff, #3b82f6)' : 'transparent',
+                  color: activeLinkTab === 'student' ? '#060913' : 'var(--text-secondary)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                🎓 Student Class Invite (tutor.cuvasol.com)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveLinkTab('partner')}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '7px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  background: activeLinkTab === 'partner' ? 'linear-gradient(135deg, #818cf8, #a855f7)' : 'transparent',
+                  color: activeLinkTab === 'partner' ? '#ffffff' : 'var(--text-secondary)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                🤝 Marketer Partner Invite
+              </button>
+            </div>
           </div>
+
+          {activeLinkTab === 'student' ? (
+            <div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
+                Share this link with students and parents. When they click it, your referral code <strong style={{ color: '#00f0ff' }}>{referralCode}</strong> is automatically pre-filled on <strong>tutor.cuvasol.com</strong>. When they complete their first class, you earn <strong>₹500</strong>!
+              </p>
+
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  readOnly
+                  value={studentInviteLink}
+                  style={{
+                    flex: 1,
+                    minWidth: 280,
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    border: '1px solid rgba(0, 240, 255, 0.3)',
+                    borderRadius: '10px',
+                    padding: '0.75rem 1rem',
+                    color: '#00f0ff',
+                    fontFamily: 'monospace',
+                    fontSize: '0.92rem'
+                  }}
+                />
+                <button
+                  onClick={handleCopyStudentLink}
+                  className="btn btn-primary"
+                  style={{ padding: '0 20px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <span>{copiedStudentLink ? '✓ Copied!' : 'Copy Student Link'}</span>
+                </button>
+                <button
+                  onClick={handleShareWhatsApp}
+                  className="btn"
+                  style={{
+                    background: '#25D366',
+                    color: '#060913',
+                    fontWeight: 700,
+                    padding: '0 20px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <span>📲 Share on WhatsApp</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
+                Share this link with fellow affiliate marketers to invite them to join the Cuvasol marketing network under your referral code.
+              </p>
+
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  readOnly
+                  value={partnerInviteLink}
+                  style={{
+                    flex: 1,
+                    minWidth: 280,
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    border: '1px solid rgba(129, 140, 248, 0.3)',
+                    borderRadius: '10px',
+                    padding: '0.75rem 1rem',
+                    color: '#818cf8',
+                    fontFamily: 'monospace',
+                    fontSize: '0.92rem'
+                  }}
+                />
+                <button
+                  onClick={handleCopyPartnerLink}
+                  className="btn btn-emerald"
+                  style={{ padding: '0 20px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <span>{copiedPartnerLink ? '✓ Copied!' : 'Copy Marketer Link'}</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Grid: Referred Users Table + Quick Simulator */}
