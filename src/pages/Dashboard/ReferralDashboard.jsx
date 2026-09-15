@@ -118,7 +118,7 @@ export function ReferralDashboard({ onNavigateLanding }) {
               onClick={(e) => { e.preventDefault(); onNavigateLanding(); }}
               style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }}
             >
-              <img src="/assets/logo.png" alt="Cuvasol" style={{ height: 36, width: 36, objectFit: 'contain' }} />
+              <img src="/CuvaLogo-1024.png" alt="Cuvasol" style={{ height: 36, width: 36, objectFit: 'contain' }} />
               <span style={{ fontSize: '1.4rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' }}>
                 Cuvasol
               </span>

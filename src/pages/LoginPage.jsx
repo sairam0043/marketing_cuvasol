@@ -49,7 +49,7 @@ export function LoginPage({ onNavigate }) {
               className="auth-logo"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none', marginBottom: '1.25rem' }}
             >
-              <img src="/assets/logo.png" alt="Cuvasol" style={{ height: 40, width: 40, objectFit: 'contain' }} />
+              <img src="/CuvaLogo-1024.png" alt="Cuvasol" style={{ height: 40, width: 40, objectFit: 'contain' }} />
               <span style={{ fontSize: '1.5rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' }}>
                 Cuvasol
               </span>

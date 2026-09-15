@@ -432,6 +432,46 @@ app.get('/api/track/click', async (req, res) => {
   res.json({ success: true });
 });
 
+// --- TUTOR PLATFORM (tutor.cuvasol.com) WEBHOOK RECEIVER ---
+app.get('/api/webhooks/tutor-event', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'Cuvasol Marketing Webhook Receiver',
+    supportedEvents: ['STUDENT_SIGNUP', 'CLASS_COMPLETED'],
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.post('/api/webhooks/tutor-event', async (req, res) => {
+  try {
+    const { event, refCode, studentName, studentEmail, studentPhone, bookingId, subject, planType, commissionAmount } = req.body;
+
+    if (!refCode) {
+      return res.status(400).json({ error: 'Referral code (refCode) is required' });
+    }
+    if (!event) {
+      return res.status(400).json({ error: 'Event type (event) is required' });
+    }
+
+    const result = await db.handleTutorWebhookEvent({
+      event,
+      refCode,
+      studentName,
+      studentEmail,
+      studentPhone,
+      bookingId,
+      subject,
+      planType,
+      commissionAmount
+    });
+
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[Tutor Webhook Error]:', err.message);
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // --- DEVELOPER / TESTING TOOLS ---
 app.post('/api/agent/seed-data', requireAuth, async (req, res) => {
   try {

@@ -271,7 +271,7 @@ export function LandingPage({ onNavigate }) {
       }}>
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <img src="/assets/logo.png" alt="Cuvasol" style={{ height: 28, width: 28, objectFit: 'contain' }} />
+            <img src="/CuvaLogo-1024.png" alt="Cuvasol" style={{ height: 28, width: 28, objectFit: 'contain' }} />
             <span style={{ fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', fontSize: '1.1rem' }}>Cuvasol</span>
           </div>
           <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>

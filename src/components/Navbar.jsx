@@ -23,7 +23,7 @@ export function Navbar({ onNavigate }) {
       <div className="container nav-inner">
         {/* Clean Single Brand Logo */}
         <a href="#landing" onClick={() => onNavigate('landing')} className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }}>
-          <img src="/assets/logo.png" alt="Cuvasol Logo" style={{ height: 38, width: 38, objectFit: 'contain' }} />
+          <img src="/CuvaLogo-1024.png" alt="Cuvasol Logo" style={{ height: 38, width: 38, objectFit: 'contain' }} />
           <span className="brand-title-main" style={{ fontSize: '1.45rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' }}>
             Cuvasol
           </span>

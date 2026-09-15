@@ -762,6 +762,155 @@ class DatabaseService {
   }
 
   // ==========================================
+  // TUTOR PLATFORM (tutor.cuvasol.com) WEBHOOK INTEGRATION
+  // ==========================================
+
+  async handleTutorWebhookEvent({ event, refCode, studentName, studentEmail, studentPhone, bookingId, subject, planType, commissionAmount }) {
+    await this.ensureConnected();
+
+    if (!refCode) {
+      throw new Error('Referral code is required to attribute tutor event');
+    }
+
+    // 1. Locate the Marketing Agent by referral code, customSlug, or ID
+    const cleanRef = refCode.trim();
+    let user = await User.findOne({
+      $or: [
+        { referralCode: new RegExp(`^${cleanRef}$`, 'i') },
+        { customSlug: new RegExp(cleanRef, 'i') },
+        { id: cleanRef }
+      ]
+    }).lean();
+
+    if (!user) {
+      // Fallback: Check if there's any active agent
+      user = await User.findOne({ id: 'CU-7390' }).lean() || await User.findOne().lean();
+      if (!user) {
+        throw new Error(`No marketing agent found matching referral code "${refCode}"`);
+      }
+    }
+
+    const userId = user.id;
+    const cleanEmail = (studentEmail || '').trim().toLowerCase();
+    const cleanName = (studentName || '').trim() || 'Student';
+    const normalizedEvent = (event || '').toUpperCase();
+
+    if (normalizedEvent === 'STUDENT_SIGNUP' || normalizedEvent === 'STUDENT_REGISTERED') {
+      // Check if this student is already registered as a lead
+      let existingLead = cleanEmail ? await Lead.findOne({ userId, contact: cleanEmail }) : null;
+      if (existingLead) {
+        return {
+          status: 'existing',
+          message: `Lead for ${cleanEmail} already exists`,
+          lead: existingLead.toObject()
+        };
+      }
+
+      const leadId = 'LD-TUTOR-' + Math.floor(1000 + Math.random() * 9000);
+      const newLead = await Lead.create({
+        id: leadId,
+        userId: userId,
+        name: cleanName,
+        contact: cleanEmail || studentPhone || 'Tutor Student',
+        stage: 'new',
+        value: 1500,
+        commission: Math.round(Number(commissionAmount) || 500),
+        date: new Date().toISOString().split('T')[0],
+        source: 'tutor.cuvasol.com',
+        notes: `Registered on tutor.cuvasol.com using referral code [${refCode}]`
+      });
+
+      // Send notification to marketer
+      await Notification.create({
+        id: 'nt-' + Date.now(),
+        userId: userId,
+        title: '🎓 New Student Referral!',
+        text: `${cleanName} signed up on tutor.cuvasol.com with your code [${refCode}]. Commission unlocks when they complete their class!`,
+        time: 'Just now',
+        read: false
+      });
+
+      return {
+        status: 'created',
+        message: `Student lead created for agent ${user.name}`,
+        lead: newLead.toObject()
+      };
+    }
+
+    if (normalizedEvent === 'CLASS_COMPLETED' || normalizedEvent === 'LESSON_COMPLETED') {
+      const awardCommission = Number(commissionAmount) || 500;
+      
+      // Find existing lead for this student
+      let lead = cleanEmail ? await Lead.findOne({ userId, contact: cleanEmail }) : null;
+      if (!lead) {
+        // If student signed up directly and completed class, create lead
+        lead = await Lead.create({
+          id: 'LD-TUTOR-' + Math.floor(1000 + Math.random() * 9000),
+          userId: userId,
+          name: cleanName,
+          contact: cleanEmail || 'Tutor Student',
+          stage: 'new',
+          value: 1500,
+          commission: awardCommission,
+          date: new Date().toISOString().split('T')[0],
+          source: 'tutor.cuvasol.com',
+          notes: `Completed class [${subject || 'Tutoring Session'}]`
+        });
+      }
+
+      // Check if commission was already awarded for this booking
+      const existingTx = bookingId 
+        ? await Transaction.findOne({ userId, desc: new RegExp(bookingId, 'i') })
+        : (cleanEmail ? await Transaction.findOne({ userId, desc: new RegExp(cleanEmail, 'i') }) : null);
+
+      if (existingTx) {
+        return {
+          status: 'already_rewarded',
+          message: 'Commission already awarded for this class',
+          transaction: existingTx.toObject()
+        };
+      }
+
+      // Update lead stage to closed_won
+      lead.stage = 'closed_won';
+      lead.commission = awardCommission;
+      await lead.save();
+
+      // Create commission transaction
+      const txId = 'TX-TUTOR-' + Math.floor(1000 + Math.random() * 9000);
+      const newTx = await Transaction.create({
+        id: txId,
+        userId: userId,
+        leadId: lead.id,
+        date: new Date().toISOString().split('T')[0],
+        type: 'Commission',
+        desc: `Tutor Referral: ${cleanName} completed ${subject || 'Class'} (${bookingId || 'Class #1'})`,
+        amount: awardCommission,
+        status: 'Paid'
+      });
+
+      // Create celebratory notification
+      await Notification.create({
+        id: 'nt-' + Date.now(),
+        userId: userId,
+        title: '🎉 Class Completed - Commission Earned!',
+        text: `Congratulations! ${cleanName} completed their class. ₹${awardCommission.toLocaleString()} commission credited to your wallet balance.`,
+        time: 'Just now',
+        read: false
+      });
+
+      return {
+        status: 'converted',
+        message: `Successfully credited ₹${awardCommission} to agent ${user.name}`,
+        lead: lead.toObject(),
+        transaction: newTx.toObject()
+      };
+    }
+
+    throw new Error(`Unknown tutor webhook event: "${event}"`);
+  }
+
+  // ==========================================
   // DEVELOPER TESTING HELPERS
   // ==========================================
 
