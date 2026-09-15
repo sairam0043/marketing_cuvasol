@@ -1,455 +1,289 @@
-import React, { useState } from 'react';
-import { EarningsCalculator } from '../components/EarningsCalculator';
-import { PublicInquiryModal } from '../components/Modals/PublicInquiryModal';
+import React from 'react';
+import { useAuth } from '../context/AuthContext';
 
 export function LandingPage({ onNavigate }) {
-  const [activeFaq, setActiveFaq] = useState(0);
-  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
-  const [searchCategory, setSearchCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const faqs = [
-    {
-      q: 'What is the Teach • Grow • Guide model at Cuvasol?',
-      a: 'Cuvasol combines educational mastery (Teach: turnkey ad scripts, video masterclasses, and B2B swipe files), AI-boosted funnel scaling (Grow: real-time attribution, lead matching, up to 15% commission), and personalized 1-on-1 engineering mentorship (Guide: technical scoping assistance and dedicated deal closers).'
-    },
-    {
-      q: 'How does Cuvasol attribute leads to my agent account?',
-      a: 'Every marketing partner receives a unique tracking slug, parameterized UTM tags, and a custom referral domain. Our 90-day cookie window and server-side webhook tracking ensure 100% accurate attribution even if a homeowner or commercial facility converts weeks later on a phone call.'
-    },
-    {
-      q: 'When and how do I receive commission payouts?',
-      a: 'Commissions are unlocked within 24 hours of solar proposal contract confirmation or system installation sign-off. You can withdraw instantly to any US bank account via ACH/Wire, Stripe Connect, or receive USDT crypto settlements with zero platform fees.'
-    },
-    {
-      q: 'Can I use my own ad creatives and custom landing pages?',
-      a: 'Yes! You can either use our pre-tested, compliant video ads and email sequences from the Asset Vault, or build your own custom landing pages and connect them via your Cuvasol Agent API webhook.'
-    },
-    {
-      q: 'Are there any setup fees or monthly charges to join?',
-      a: 'Zero fees. The Cuvasol Agent Cloud is 100% free for approved marketing partners and tutors. We succeed exclusively when you generate verified solar and cleantech deal volume.'
-    }
-  ];
+  const { isAuthenticated, user } = useAuth();
 
   return (
-    <div className="landing-page-root">
-      {/* Hero Section (Matching tutor.cuvasol.com Hero) */}
-      <section className="hero-section">
+    <div className="landing-page-root" style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      
+      {/* Hero Section */}
+      <section className="hero-section" style={{ paddingTop: '8.5rem', paddingBottom: '5rem' }}>
         <div className="container">
-          <div className="hero-banner-container text-center">
-            <div className="hero-badge-wrap">
-              <span className="badge-pulse-dot" style={{ background: '#FFFFFF', boxShadow: '0 0 10px #FFFFFF' }}></span>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FFFFFF' }}>
-                🎓 Teach • 🌱 Grow • 🧭 Guide — Cuvasol Growth & Learning Platform
+          <div style={{ maxWidth: 920, margin: '0 auto', textAlign: 'center' }}>
+            
+            {/* Top Pill Badge */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+              padding: '0.45rem 1.25rem',
+              borderRadius: '9999px',
+              background: 'var(--primary-light)',
+              border: '1px solid var(--border-glow)',
+              marginBottom: '1.75rem'
+            }}>
+              <span className="badge-pulse-dot"></span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                ⚡ Cuvasol Referral & Member Network
               </span>
             </div>
 
-            <h1 className="hero-title">
+            {/* Main Headline */}
+            <h1 style={{
+              fontSize: 'clamp(2.4rem, 5.5vw, 4.2rem)',
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+              lineHeight: 1.15,
+              marginBottom: '1.5rem',
+              color: 'var(--text-primary)'
+            }}>
               Empowering High-Yield Growth for <br />
-              <span style={{ color: '#FEE5A5' }}>CleanTech Marketing & Solar Agents</span>
+              <span style={{
+                background: 'var(--grad-primary)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                display: 'inline-block'
+              }}>
+                CleanTech & Referral Agents
+              </span>
             </h1>
 
-            <p className="hero-subtitle">
-              Master the playbooks (Teach), scale multi-channel solar funnels (Grow), and partner with dedicated engineering mentors (Guide) with instant 24-hour commission payouts.
+            {/* Subtitle */}
+            <p style={{
+              fontSize: 'clamp(1.05rem, 2vw, 1.25rem)',
+              color: 'var(--text-secondary)',
+              maxWidth: 720,
+              margin: '0 auto 2.5rem auto',
+              lineHeight: 1.6
+            }}>
+              Create your account in seconds, receive your personal referral code, and track every person you refer in real-time backed by MongoDB.
             </p>
 
-            <div className="hero-cta-group">
-              <button className="btn btn-hero-primary btn-lg" onClick={() => onNavigate('signup')}>
-                <span>🚀 Join as Marketing Agent</span>
-              </button>
-              <button className="btn btn-hero-secondary btn-lg" onClick={() => onNavigate('login')}>
-                <span>⚡ Launch Agent Portal</span>
-              </button>
-              <button className="btn btn-hero-secondary btn-lg" onClick={() => setIsInquiryOpen(true)}>
-                <span>☀️ Request Solar Quote</span>
-              </button>
-            </div>
-
-            {/* Quick Search / Filter Bar (Tutor Style) */}
-            <div className="hero-search-bar">
-              <div className="search-input-pill">
-                <span style={{ fontSize: '1.2rem' }}>🔍</span>
-                <input
-                  type="text"
-                  placeholder="Search campaigns, solar playbooks, or guides..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-
-              <div className="search-input-pill" style={{ maxWidth: '220px' }}>
-                <span style={{ fontSize: '1.2rem' }}>🏷️</span>
-                <select
-                  value={searchCategory}
-                  onChange={(e) => setSearchCategory(e.target.value)}
+            {/* Hero CTAs */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem',
+              flexWrap: 'wrap',
+              marginBottom: '4rem'
+            }}>
+              {isAuthenticated ? (
+                <button
+                  className="btn btn-primary btn-lg"
+                  onClick={() => onNavigate('dashboard')}
+                  style={{ padding: '1rem 2.5rem', fontSize: '1.1rem' }}
                 >
-                  <option value="all">All Ecosystems</option>
-                  <option value="teach">🎓 Teach (Courses & Playbooks)</option>
-                  <option value="grow">🌱 Grow (Solar Funnels & Ads)</option>
-                  <option value="guide">🧭 Guide (1-on-1 Mentorship)</option>
-                </select>
-              </div>
-
-              <button
-                className="btn btn-primary"
-                style={{ padding: '0.65rem 1.5rem', borderRadius: 'var(--radius-md)' }}
-                onClick={() => onNavigate('signup')}
-              >
-                Find & Start
-              </button>
-            </div>
-          </div>
-
-          {/* Hero Stats Strip */}
-          <div className="hero-stats-strip">
-            <div className="hero-stat-item">
-              <div className="hero-stat-value">$14.2M+</div>
-              <div className="hero-stat-label">Commissions Distributed</div>
-            </div>
-            <div className="hero-stat-item">
-              <div className="hero-stat-value" style={{ color: 'var(--accent)' }}>98.4%</div>
-              <div className="hero-stat-label">AI Lead Quality Score</div>
-            </div>
-            <div className="hero-stat-item">
-              <div className="hero-stat-value" style={{ color: 'var(--grow-green)' }}>&lt; 24 Hrs</div>
-              <div className="hero-stat-label">Instant Payout Settlement</div>
-            </div>
-            <div className="hero-stat-item">
-              <div className="hero-stat-value" style={{ color: '#D97706' }}>Up to 15%</div>
-              <div className="hero-stat-label">Top Tier Commission Rate</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================= 3 PILLARS: TEACH • GROW • GUIDE ================= */}
-      <section className="section" id="teach" style={{ background: 'var(--bg-secondary)', padding: '5rem 0' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="section-tag">The Cuvasol Flywheel</span>
-            <h2>How We Power Your Success: <span className="text-primary-brand">Teach • Grow • Guide</span></h2>
-            <p>A complete institutional ecosystem taking you from marketing fundamentals to scaling 5-figure monthly recurring clean energy commissions.</p>
-          </div>
-
-          <div className="pillars-grid">
-            {/* PILLAR 1: TEACH */}
-            <div className="pillar-card teach">
-              <div className="pillar-icon-box">🎓</div>
-              <div>
-                <span className="pillar-tag">Pillar 1: Mastery</span>
-              </div>
-              <h3 className="font-serif">TEACH & Learn</h3>
-              <p>
-                Access proven video masterclasses, TikTok UGC scripts, B2B CFO outreach sequences, and regulatory ITC tax incentive blueprints crafted by 8-figure clean energy marketers.
-              </p>
-              <ul className="pillar-features">
-                <li><span className="pillar-check">✓</span> Daily updated swipe files in Asset Vault</li>
-                <li><span className="pillar-check">✓</span> High-converting TikTok & Meta video hooks</li>
-                <li><span className="pillar-check">✓</span> Enterprise CleanTech pitch deck templates</li>
-              </ul>
-              <div style={{ marginTop: 'auto' }}>
-                <button className="btn btn-outline-teal btn-sm" style={{ width: '100%' }} onClick={() => onNavigate('signup')}>
-                  Access Learning Vault ➔
+                  <span>🚀 Open My Referral Dashboard ➔</span>
                 </button>
+              ) : (
+                <>
+                  <button
+                    className="btn btn-primary btn-lg"
+                    onClick={() => onNavigate('signup')}
+                    style={{ padding: '1rem 2.2rem', fontSize: '1.05rem' }}
+                  >
+                    <span>🚀 Get Your Referral Code</span>
+                  </button>
+                  <button
+                    className="btn btn-secondary btn-lg"
+                    onClick={() => onNavigate('login')}
+                    style={{ padding: '1rem 2.2rem', fontSize: '1.05rem' }}
+                  >
+                    <span>⚡ Sign In to Account</span>
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* 4 Feature Highlights Strip */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '1.25rem',
+              padding: '1.5rem',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: '20px',
+              boxShadow: 'var(--shadow-card)',
+              textAlign: 'left'
+            }}>
+              <div style={{ padding: '0.75rem' }}>
+                <div style={{ fontSize: '1.8rem', marginBottom: '0.4rem' }}>🎁</div>
+                <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '0.2rem' }}>Personal Code</div>
+                <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Unique referral code assigned instantly upon signup.</div>
+              </div>
+
+              <div style={{ padding: '0.75rem' }}>
+                <div style={{ fontSize: '1.8rem', marginBottom: '0.4rem' }}>👥</div>
+                <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1rem', marginBottom: '0.2rem' }}>Referral Counter</div>
+                <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Live breakdown of every user who signed up with your code.</div>
+              </div>
+
+              <div style={{ padding: '0.75rem' }}>
+                <div style={{ fontSize: '1.8rem', marginBottom: '0.4rem' }}>🔗</div>
+                <div style={{ fontWeight: 700, color: 'var(--emerald-500)', fontSize: '1rem', marginBottom: '0.2rem' }}>1-Click Share</div>
+                <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Direct referral link that automatically pre-fills your code.</div>
+              </div>
+
+              <div style={{ padding: '0.75rem' }}>
+                <div style={{ fontSize: '1.8rem', marginBottom: '0.4rem' }}>🍃</div>
+                <div style={{ fontWeight: 700, color: 'var(--accent)', fontSize: '1rem', marginBottom: '0.2rem' }}>MongoDB Cloud</div>
+                <div style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Connected to MongoDB Atlas for 24/7 persistent storage.</div>
               </div>
             </div>
 
-            {/* PILLAR 2: GROW */}
-            <div className="pillar-card grow" id="grow">
-              <div className="pillar-icon-box">🌱</div>
-              <div>
-                <span className="pillar-tag">Pillar 2: Scaling</span>
-              </div>
-              <h3 className="font-serif">GROW & Yield</h3>
-              <p>
-                Deploy AI-scored solar funnels with sub-second UTM attribution. Collect high-ticket commissions starting from 10% up to 15% with accelerated milestone bonuses.
-              </p>
-              <ul className="pillar-features">
-                <li><span className="pillar-check">✓</span> AI pre-qualified rooftop solar intelligence</li>
-                <li><span className="pillar-check">✓</span> Real-time multi-channel click tracking</li>
-                <li><span className="pillar-check">✓</span> 24-hr instant payouts via ACH, Wire, or USDT</li>
-              </ul>
-              <div style={{ marginTop: 'auto' }}>
-                <a href="#calculator" className="btn btn-primary btn-sm" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                  Calculate Earning Potential ➔
-                </a>
-              </div>
-            </div>
-
-            {/* PILLAR 3: GUIDE */}
-            <div className="pillar-card guide" id="guide">
-              <div className="pillar-icon-box">🧭</div>
-              <div>
-                <span className="pillar-tag">Pillar 3: Mentorship</span>
-              </div>
-              <h3 className="font-serif">GUIDE & Close</h3>
-              <p>
-                You don't need to be an engineer. You generate the leads, and our dedicated sales engineering mentors perform the site surveys, ROI models, and close deals for you.
-              </p>
-              <ul className="pillar-features">
-                <li><span className="pillar-check">✓</span> 1-on-1 growth advisor pairing</li>
-                <li><span className="pillar-check">✓</span> Full commercial proposal engineering support</li>
-                <li><span className="pillar-check">✓</span> Real-time transparent deal CRM status</li>
-              </ul>
-              <div style={{ marginTop: 'auto' }}>
-                <button className="btn btn-coral btn-sm" style={{ width: '100%' }} onClick={() => onNavigate('signup')}>
-                  Connect with Mentor ➔
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="section" id="features">
+      {/* How It Works Section */}
+      <section style={{ padding: '5rem 0', borderTop: '1px solid var(--border-subtle)', position: 'relative', background: 'var(--bg-secondary)' }}>
         <div className="container">
-          <div className="section-header">
-            <span className="section-tag">Agent Arsenal</span>
-            <h2>Everything You Need to <span className="text-primary-brand">Scale Your Growth</span></h2>
-            <p>We provide marketing creators, media buyers, and affiliate growth specialists with institutional-grade infrastructure.</p>
+          <div style={{ textAlign: 'center', maxWidth: 650, margin: '0 auto 3.5rem auto' }}>
+            <div style={{ color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
+              Simple 3-Step Process
+            </div>
+            <h2 style={{ fontSize: '2.4rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' }}>
+              How the Referral System Works
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem' }}>
+              Start sharing and tracking your referral network in just a few clicks.
+            </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.75rem' }}>
-            <div className="card" style={{ padding: '2rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🧠</div>
-              <h3 className="font-serif" style={{ fontSize: '1.35rem', marginBottom: '0.6rem' }}>AI Lead Intelligence</h3>
-              <p style={{ fontSize: '0.925rem', marginBottom: '1.25rem' }}>
-                Our machine learning engine pre-qualifies rooftop solar data, utility bill viability, and credit pre-scores so you only get rewarded for high-intent closes.
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span className="badge badge-teal">98% Accuracy</span>
-                <span className="badge badge-blue">Instant Scoring</span>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '2rem'
+          }}>
+            {/* Step 1 */}
+            <div className="glass-card" style={{ padding: '2.25rem', position: 'relative' }}>
+              <div style={{
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                background: 'var(--primary)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.1rem',
+                marginBottom: '1.25rem',
+                boxShadow: '0 4px 12px var(--primary-glow)'
+              }}>
+                1
               </div>
+              <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-sans)', fontWeight: 700, marginBottom: '0.65rem', color: 'var(--text-primary)' }}>
+                Sign Up with Your Details
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.925rem', lineHeight: 1.6 }}>
+                Create your agent account with your name, email, and password. If you were invited by someone, their referral code is automatically attached.
+              </p>
             </div>
 
-            <div className="card" style={{ padding: '2rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⚡</div>
-              <h3 className="font-serif" style={{ fontSize: '1.35rem', marginBottom: '0.6rem' }}>Turnkey Marketing Kits</h3>
-              <p style={{ fontSize: '0.925rem', marginBottom: '1.25rem' }}>
-                Access high-converting TikTok UGC scripts, Meta video ads, Google search copy, and B2B LinkedIn sequences crafted by 8-figure growth marketers.
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span className="badge badge-teal">1-Click Copy</span>
-                <span className="badge badge-purple">Daily Updates</span>
+            {/* Step 2 */}
+            <div className="glass-card" style={{ padding: '2.25rem', position: 'relative' }}>
+              <div style={{
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                background: 'var(--accent)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.1rem',
+                marginBottom: '1.25rem',
+                boxShadow: '0 4px 12px rgba(240, 106, 67, 0.35)'
+              }}>
+                2
               </div>
+              <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-sans)', fontWeight: 700, marginBottom: '0.65rem', color: 'var(--text-primary)' }}>
+                Get Your Unique Code & Link
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.925rem', lineHeight: 1.6 }}>
+                Instantly access your personalized referral code (e.g. <code>SARAH-CLEAN-26</code>) and shareable 1-click registration link in your dashboard.
+              </p>
             </div>
 
-            <div className="card" style={{ padding: '2rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>💸</div>
-              <h3 className="font-serif" style={{ fontSize: '1.35rem', marginBottom: '0.6rem' }}>Instant 24-Hr Payouts</h3>
-              <p style={{ fontSize: '0.925rem', marginBottom: '1.25rem' }}>
-                No waiting 60 days for network settlements. As soon as solar installation contracts confirm, commissions hit your wallet via ACH, Wire, or USDT.
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span className="badge badge-green">Daily Liquidity</span>
-                <span className="badge badge-gold">Crypto / Fiat</span>
+            {/* Step 3 */}
+            <div className="glass-card" style={{ padding: '2.25rem', position: 'relative' }}>
+              <div style={{
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                background: 'var(--emerald-500)',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.1rem',
+                marginBottom: '1.25rem',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)'
+              }}>
+                3
               </div>
+              <h3 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-sans)', fontWeight: 700, marginBottom: '0.65rem', color: 'var(--text-primary)' }}>
+                Track Your Referrals Live
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.925rem', lineHeight: 1.6 }}>
+                Whenever someone joins using your code, your dashboard automatically increments your referral counter and lists their profile details.
+              </p>
             </div>
+          </div>
 
-            <div className="card" style={{ padding: '2rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📊</div>
-              <h3 className="font-serif" style={{ fontSize: '1.35rem', marginBottom: '0.6rem' }}>Sub-Second Attribution</h3>
-              <p style={{ fontSize: '0.925rem', marginBottom: '1.25rem' }}>
-                Deep UTM tracking, custom sub-IDs, webhook integrations, and real-time click-to-conversion analytics to optimize your ad spend with pinpoint precision.
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span className="badge badge-teal">Zero Data Loss</span>
-                <span className="badge badge-blue">Server-Side API</span>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: '2rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📈</div>
-              <h3 className="font-serif" style={{ fontSize: '1.35rem', marginBottom: '0.6rem' }}>Tiered Milestone Bonuses</h3>
-              <p style={{ fontSize: '0.925rem', marginBottom: '1.25rem' }}>
-                Accelerate your baseline 10% rate up to 15% plus monthly cash bonuses up to $10,000 as your deal volume expands month-over-month.
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span className="badge badge-gold">Diamond Club</span>
-                <span className="badge badge-green">Cash Accelerators</span>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: '2rem' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🤝</div>
-              <h3 className="font-serif" style={{ fontSize: '1.35rem', marginBottom: '0.6rem' }}>Dedicated Agent Success</h3>
-              <p style={{ fontSize: '0.925rem', marginBottom: '1.25rem' }}>
-                Get paired with an exclusive growth advisor who provides custom landing page splits, regional tariff insights, and creative optimization audits.
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span className="badge badge-teal">1-on-1 Mentorship</span>
-                <span className="badge badge-purple">24/7 Support</span>
-              </div>
-            </div>
+          {/* Bottom CTA Box */}
+          <div style={{
+            marginTop: '4rem',
+            padding: '3rem 2rem',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-medium)',
+            borderRadius: '24px',
+            boxShadow: 'var(--shadow-card)',
+            textAlign: 'center'
+          }}>
+            <h3 style={{ fontSize: '1.8rem', fontFamily: 'var(--font-display)', fontWeight: 700, marginBottom: '0.75rem', color: 'var(--text-primary)' }}>
+              Ready to Get Started?
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', maxWidth: 500, margin: '0 auto 1.75rem auto' }}>
+              Join Cuvasol today and start building your referral network.
+            </p>
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={() => onNavigate('signup')}
+            >
+              <span>Create Free Account & Get Referral Code 🚀</span>
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Interactive Calculator */}
-      <section className="section" id="calculator" style={{ background: 'var(--bg-secondary)' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="section-tag">Interactive Estimator</span>
-            <h2>Calculate Your <span className="text-primary-brand">Earning Potential</span></h2>
-            <p>Adjust the sliders below to see your projected monthly commissions and milestone accelerator bonuses.</p>
+      {/* Clean Footer */}
+      <footer style={{
+        borderTop: '1px solid var(--border-subtle)',
+        padding: '2.5rem 0',
+        background: 'var(--bg-card)'
+      }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <img src="/assets/logo.png" alt="Cuvasol" style={{ height: 28, width: 28, objectFit: 'contain' }} />
+            <span style={{ fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', fontSize: '1.1rem' }}>Cuvasol</span>
           </div>
-
-          <EarningsCalculator onClaim={() => onNavigate('signup')} />
-        </div>
-      </section>
-
-      {/* Leaderboard */}
-      <section className="section" id="leaderboard">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-tag">Proof of Performance</span>
-            <h2>Top Partner <span className="text-primary-brand">Leaderboard</span></h2>
-            <p>Live verified monthly earnings from our top performing clean energy marketing partners.</p>
+          <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+            © {new Date().getFullYear()} Cuvasol Agent Cloud. MongoDB Database Integrated.
           </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-            <div className="card" style={{ padding: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                  #1
-                </div>
-                <div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700 }}>David K. • SolarWave Media</h4>
-                  <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Meta Video Ads Specialist</p>
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', fontWeight: 700, color: 'var(--primary)' }}>$48,920.00</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>19 Closed Deals</div>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                  #2
-                </div>
-                <div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700 }}>Sarah Jenkins</h4>
-                  <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Omnichannel Solar & Storage</p>
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', fontWeight: 700, color: 'var(--accent)' }}>$36,450.00</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>14 Closed Deals</div>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#0284C7', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>
-                  #3
-                </div>
-                <div>
-                  <h4 style={{ fontSize: '1.05rem', fontWeight: 700 }}>Alex Rivera Growth Labs</h4>
-                  <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>B2B CleanTech Commercial</p>
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.35rem', fontWeight: 700, color: '#0284C7' }}>$29,180.00</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>9 Commercial Closes</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="section" id="faq" style={{ background: 'var(--bg-secondary)' }}>
-        <div className="container">
-          <div className="section-header">
-            <span className="section-tag">Frequently Asked Questions</span>
-            <h2>Program <span className="text-primary-brand">FAQ</span></h2>
-            <p>Everything you need to know about payouts, lead attribution, and compliance.</p>
-          </div>
-
-          <div className="faq-list">
-            {faqs.map((faq, idx) => (
-              <div key={idx} className="faq-item">
-                <div
-                  className="faq-question"
-                  onClick={() => setActiveFaq(activeFaq === idx ? -1 : idx)}
-                >
-                  <span>{faq.q}</span>
-                  <span style={{ fontSize: '1.4rem', color: 'var(--primary)', transform: activeFaq === idx ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s ease' }}>+</span>
-                </div>
-                {activeFaq === idx && (
-                  <div className="faq-answer">
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Public Inbound Lead Modal */}
-      <PublicInquiryModal
-        isOpen={isInquiryOpen}
-        onClose={() => setIsInquiryOpen(false)}
-      />
-
-      {/* Footer */}
-      <footer className="landing-footer">
-        <div className="container">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <a href="#landing" onClick={() => onNavigate('landing')} className="brand-logo" style={{ marginBottom: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }}>
-                <img src="/assets/logo.png" alt="Cuvasol" style={{ height: 38, width: 38, objectFit: 'contain' }} />
-                <span style={{ fontSize: '1.45rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  Cuvasol
-                </span>
-              </a>
-              <p>The premier Teach • Grow • Guide ecosystem accelerating clean energy and high-yield marketing partners globally.</p>
-            </div>
-
-            <div className="footer-col">
-              <h4>Teach & Grow</h4>
-              <ul>
-                <li><a href="#teach">Mastery & Playbooks</a></li>
-                <li><a href="#grow">AI Funnel Engine</a></li>
-                <li><a href="#guide">Engineering Mentorship</a></li>
-                <li><a href="#calculator">ROI Calculator</a></li>
-              </ul>
-            </div>
-
-            <div className="footer-col">
-              <h4>Cuvasol Hub</h4>
-              <ul>
-                <li><a href="https://tuto.cuvasol.com" target="_blank" rel="noopener noreferrer">Learning Platform (tuto)</a></li>
-                <li><a href="https://tutor.cuvasol.com" target="_blank" rel="noopener noreferrer">Student Hub (tutor)</a></li>
-                <li><a href="#login" onClick={() => onNavigate('login')}>Agent Portal Login</a></li>
-                <li><a href="#signup" onClick={() => onNavigate('signup')}>Join as Partner</a></li>
-              </ul>
-            </div>
-
-            <div className="footer-col">
-              <h4>Compliance</h4>
-              <ul>
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms of Service</a></li>
-                <li><a href="#">FTC Guidelines</a></li>
-                <li><a href="#">Attribution Network</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="footer-bottom">
-            <div>© 2026 Cuvasol Technologies, Inc. All rights reserved. Teach • Grow • Guide.</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span className="badge-pulse-dot" style={{ width: 6, height: 6 }}></span>
-              <span>All Attribution Nodes Operational (99.99%)</span>
-            </div>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <button onClick={() => onNavigate('login')} className="btn-ghost" style={{ fontSize: '0.85rem' }}>Sign In</button>
+            <button onClick={() => onNavigate('signup')} className="btn-ghost" style={{ fontSize: '0.85rem' }}>Sign Up</button>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }

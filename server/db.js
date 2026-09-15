@@ -1,18 +1,32 @@
 /* ==========================================================================
-   CUVASOL AGENT CLOUD - NODE.JS PERSISTENT DATABASE (server/db.js)
+   CUVASOL AGENT CLOUD - MONGODB & MONGOOSE DATABASE SERVICE (server/db.js)
    ========================================================================== */
 
+import dns from 'dns';
+import mongoose from 'mongoose';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (e) {
+  // Ignored if restricted
+}
+import {
+  User,
+  Campaign,
+  Lead,
+  Transaction,
+  Payout,
+  Notification,
+  Asset,
+  ClickLog
+} from './models/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DB_FILE = process.env.VERCEL
-  ? path.join('/tmp', 'store.json')
-  : path.join(__dirname, 'data', 'store.json');
-
 const BUNDLED_DB_FILE = path.join(__dirname, 'data', 'store.json');
 
 // Helper to hash password with salt
@@ -20,145 +34,248 @@ function hashPassword(password, salt = 'cuvasol_salt_2026') {
   return crypto.createHmac('sha256', salt).update(password).digest('hex');
 }
 
-class Database {
+// Global cached connection for serverless / reload environments
+let cachedConnection = global.__mongoConnection || null;
+
+class DatabaseService {
   constructor() {
-    this.ensureDbExists();
-    this.data = this.loadData();
+    this.isConnected = false;
+    this.isSeeding = false;
+    this.connectionPromise = null;
   }
 
-  ensureDbExists() {
-    const dir = path.dirname(DB_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+  async connect() {
+    if (this.isConnected && mongoose.connection.readyState === 1) {
+      return mongoose.connection;
     }
-    if (!fs.existsSync(DB_FILE)) {
-      if (fs.existsSync(BUNDLED_DB_FILE)) {
-        try {
-          const bundledContent = fs.readFileSync(BUNDLED_DB_FILE, 'utf-8');
-          fs.writeFileSync(DB_FILE, bundledContent, 'utf-8');
-          return;
-        } catch (e) {
-          console.warn('Could not copy bundled DB file:', e);
+
+    if (this.connectionPromise) {
+      return this.connectionPromise;
+    }
+
+    const uri = process.env.MONGODB_URI;
+    if (!uri) {
+      throw new Error('MONGODB_URI environment variable is not defined.');
+    }
+
+    this.connectionPromise = (async () => {
+      try {
+        if (mongoose.connection.readyState === 1) {
+          this.isConnected = true;
+          return mongoose.connection;
         }
+
+        console.log('🔄 Connecting to MongoDB database...');
+        const conn = await mongoose.connect(uri, {
+          serverSelectionTimeoutMS: 15000,
+          socketTimeoutMS: 45000
+        });
+
+        this.isConnected = true;
+        global.__mongoConnection = conn;
+        console.log(`✅ MongoDB Connected Successfully: ${conn.connection.host}/${conn.connection.name}`);
+
+        // Bootstrap seed data if database collections are empty
+        await this.bootstrapSeedData();
+
+        return conn;
+      } catch (err) {
+        console.error('❌ MongoDB Connection Error:', err.message);
+        this.isConnected = false;
+        this.connectionPromise = null;
+        throw err;
       }
-      const initial = {
-        users: [],
-        campaigns: [],
-        leads: [],
-        transactions: [],
-        payouts: [],
-        notifications: [],
-        assets: [],
-        clickLogs: []
-      };
-      fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2), 'utf-8');
+    })();
+
+    return this.connectionPromise;
+  }
+
+  async ensureConnected() {
+    if (!this.isConnected || mongoose.connection.readyState !== 1) {
+      await this.connect();
     }
   }
 
-  loadData() {
+  async bootstrapSeedData() {
+    if (this.isSeeding) return;
+    this.isSeeding = true;
+
     try {
-      const content = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(content);
+      const userCount = await User.countDocuments();
+      if (userCount > 0) {
+        // Already seeded
+        this.isSeeding = false;
+        return;
+      }
+
+      console.log('📦 Initializing fresh MongoDB database with bootstrap seed data...');
+      if (!fs.existsSync(BUNDLED_DB_FILE)) {
+        this.isSeeding = false;
+        return;
+      }
+
+      const seedContent = fs.readFileSync(BUNDLED_DB_FILE, 'utf-8');
+      const data = JSON.parse(seedContent);
+
+      if (data.users && data.users.length) {
+        await User.insertMany(data.users);
+      }
+      if (data.campaigns && data.campaigns.length) {
+        await Campaign.insertMany(data.campaigns);
+      }
+      if (data.leads && data.leads.length) {
+        await Lead.insertMany(data.leads);
+      }
+      if (data.transactions && data.transactions.length) {
+        await Transaction.insertMany(data.transactions);
+      }
+      if (data.payouts && data.payouts.length) {
+        await Payout.insertMany(data.payouts);
+      }
+      if (data.notifications && data.notifications.length) {
+        await Notification.insertMany(data.notifications);
+      }
+      if (data.assets && data.assets.length) {
+        await Asset.insertMany(data.assets);
+      }
+      if (data.clickLogs && data.clickLogs.length) {
+        await ClickLog.insertMany(data.clickLogs);
+      }
+
+      console.log('🎉 MongoDB database successfully seeded with initial agent data and assets!');
     } catch (err) {
-      console.error('Error reading database file, using fallback:', err);
-      return {
-        users: [],
-        campaigns: [],
-        leads: [],
-        transactions: [],
-        payouts: [],
-        notifications: [],
-        assets: [],
-        clickLogs: []
-      };
+      console.error('⚠️ Error bootstrapping seed data to MongoDB:', err);
+    } finally {
+      this.isSeeding = false;
     }
   }
 
-  saveData() {
-    try {
-      const tempPath = DB_FILE + '.tmp';
-      fs.writeFileSync(tempPath, JSON.stringify(this.data, null, 2), 'utf-8');
-      fs.renameSync(tempPath, DB_FILE);
-    } catch (err) {
-      console.error('Error saving database to file:', err);
-    }
+  sanitizeUser(user) {
+    if (!user) return null;
+    const obj = user.toObject ? user.toObject() : { ...user };
+    delete obj.passwordHash;
+    delete obj._id;
+    delete obj.__v;
+    return obj;
   }
 
   // ==========================================
   // AUTHENTICATION & USERS
   // ==========================================
 
-  getUserByToken(token) {
+  async getUserByToken(token) {
     if (!token) return null;
-    return this.data.users.find(u => u.token === token) || null;
+    await this.ensureConnected();
+    const user = await User.findOne({ token }).lean();
+    return user;
   }
 
-  getUserById(id) {
-    return this.data.users.find(u => u.id === id) || null;
+  async getUserById(id) {
+    await this.ensureConnected();
+    const user = await User.findOne({ id }).lean();
+    return user;
   }
 
-  sanitizeUser(user) {
-    if (!user) return null;
-    const { passwordHash, ...safeUser } = user;
-    return safeUser;
-  }
-
-  register({ name, email, password, channels, payoutMethod }) {
+  async register({ name, email, password, referralCodeUsed, channels, payoutMethod }) {
+    await this.ensureConnected();
     const normalizedEmail = email.trim().toLowerCase();
-    const existing = this.data.users.find(u => u.email.toLowerCase() === normalizedEmail);
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
-      throw new Error('An agent account with this email address already exists.');
+      throw new Error('An account with this email address already exists.');
     }
 
     const userId = 'CU-' + Math.floor(1000 + Math.random() * 9000);
-    const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AG';
     const cleanName = name.trim();
-    const referralCode = cleanName.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10) + '-26';
+    const initials = cleanName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AG';
+    const referralCode = cleanName.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10) + '-' + Math.floor(10 + Math.random() * 90);
     const slugName = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '');
     const token = 'tok_' + crypto.randomBytes(24).toString('hex');
     const pwdHash = hashPassword(password || 'password123');
 
-    const newUser = {
+    let referredBy = null;
+    if (referralCodeUsed) {
+      const cleanRef = referralCodeUsed.trim();
+      const referrer = await User.findOne({
+        referralCode: new RegExp(`^${cleanRef}$`, 'i')
+      });
+      if (referrer) {
+        referredBy = referrer.referralCode;
+        // Add notification for the referring user
+        await Notification.create({
+          id: 'nt-' + Date.now(),
+          userId: referrer.id,
+          title: 'New Referral! 🎉',
+          text: `${cleanName} just signed up using your referral code (${referrer.referralCode})!`,
+          time: 'Just now',
+          read: false
+        });
+      }
+    }
+
+    const newUser = await User.create({
       id: userId,
       email: normalizedEmail,
       passwordHash: pwdHash,
       name: cleanName,
-      tier: 'Gold Agent',
+      tier: 'Active Agent',
       tierCommission: 0.12,
       avatar: initials,
       joinedDate: new Date().toLocaleString('en-US', { month: 'short', year: 'numeric' }),
       referralCode: referralCode,
+      referredBy: referredBy,
       customSlug: `cuvasol.energy/a/${slugName}`,
       payoutMethod: payoutMethod || 'Direct Bank Deposit (ACH)',
-      niche: channels && channels.length ? channels : ['Social Media Ads', 'Direct Outreach'],
+      niche: channels && channels.length ? channels : ['Referral Sharing'],
       token: token,
       notificationSettings: {
         emailLeadAlerts: true,
         smsPayoutAlerts: true,
         weeklyAdDrops: true
       }
-    };
-
-    this.data.users.push(newUser);
-
-    // Add welcome notification
-    this.data.notifications.unshift({
-      id: 'nt-' + Date.now(),
-      userId: userId,
-      title: 'Welcome to Cuvasol Agent Cloud! ⚡',
-      text: `Your referral code is ${referralCode}. Launch your first campaign to start earning.`,
-      time: 'Just now',
-      read: false,
-      createdAt: new Date().toISOString()
     });
 
-    this.saveData();
+    // Add welcome notification
+    await Notification.create({
+      id: 'nt-' + (Date.now() + 1),
+      userId: userId,
+      title: 'Welcome to Cuvasol! ⚡',
+      text: `Your unique referral code is ${referralCode}. Share it to start building your referral network.`,
+      time: 'Just now',
+      read: false
+    });
+
     return { user: this.sanitizeUser(newUser), token };
   }
 
-  login(email, password) {
+  async getReferrals(userId) {
+    await this.ensureConnected();
+    const user = await this.getUserById(userId);
+    if (!user) {
+      return { referralCode: '', totalReferrals: 0, referredUsers: [] };
+    }
+
+    const refCode = user.referralCode;
+    const referredUsers = await User.find({
+      referredBy: new RegExp(`^${refCode}$`, 'i')
+    }).sort({ createdAt: -1 }).lean();
+
+    return {
+      referralCode: refCode,
+      totalReferrals: referredUsers.length,
+      referredUsers: referredUsers.map(u => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        joinedDate: u.joinedDate || new Date(u.createdAt).toLocaleDateString(),
+        tier: u.tier || 'Agent'
+      }))
+    };
+  }
+
+  async login(email, password) {
+    await this.ensureConnected();
     const normalizedEmail = email.trim().toLowerCase();
-    const user = this.data.users.find(u => u.email.toLowerCase() === normalizedEmail);
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       throw new Error('Invalid email or password.');
     }
@@ -174,17 +291,19 @@ class Database {
     }
 
     // Refresh token
-    user.token = 'tok_' + crypto.randomBytes(24).toString('hex');
-    this.saveData();
+    const newToken = 'tok_' + crypto.randomBytes(24).toString('hex');
+    user.token = newToken;
+    await user.save();
 
-    return { user: this.sanitizeUser(user), token: user.token };
+    return { user: this.sanitizeUser(user), token: newToken };
   }
 
-  demoLogin() {
-    let demoUser = this.data.users.find(u => u.id === 'CU-7390' || u.email === 'demo@cuvasol.energy');
+  async demoLogin() {
+    await this.ensureConnected();
+    let demoUser = await User.findOne({ $or: [{ id: 'CU-7390' }, { email: 'demo@cuvasol.energy' }] });
+
     if (!demoUser) {
-      // Re-create demo user if somehow deleted
-      demoUser = {
+      demoUser = await User.create({
         id: 'CU-7390',
         email: 'demo@cuvasol.energy',
         passwordHash: hashPassword('demo12345'),
@@ -203,18 +322,18 @@ class Database {
           smsPayoutAlerts: true,
           weeklyAdDrops: true
         }
-      };
-      this.data.users.push(demoUser);
+      });
     }
 
     demoUser.token = 'tok_demo_' + crypto.randomBytes(16).toString('hex');
-    this.saveData();
+    await demoUser.save();
 
     return { user: this.sanitizeUser(demoUser), token: demoUser.token };
   }
 
-  updateProfile(userId, updates) {
-    const user = this.data.users.find(u => u.id === userId);
+  async updateProfile(userId, updates) {
+    await this.ensureConnected();
+    const user = await User.findOne({ id: userId });
     if (!user) throw new Error('User not found');
 
     if (updates.name) {
@@ -231,10 +350,13 @@ class Database {
       user.niche = updates.niche;
     }
     if (updates.notificationSettings) {
-      user.notificationSettings = { ...user.notificationSettings, ...updates.notificationSettings };
+      user.notificationSettings = {
+        ...user.notificationSettings?.toObject?.() || user.notificationSettings,
+        ...updates.notificationSettings
+      };
     }
 
-    this.saveData();
+    await user.save();
     return this.sanitizeUser(user);
   }
 
@@ -242,10 +364,13 @@ class Database {
   // DASHBOARD KPIS & DYNAMIC CALCULATIONS
   // ==========================================
 
-  getKPIs(userId) {
-    const userLeads = this.data.leads.filter(l => l.userId === userId);
-    const userCampaigns = this.data.campaigns.filter(c => c.userId === userId);
-    const userTransactions = this.data.transactions.filter(t => t.userId === userId);
+  async getKPIs(userId) {
+    await this.ensureConnected();
+    const [userLeads, userCampaigns, userTransactions] = await Promise.all([
+      Lead.find({ userId }).lean(),
+      Campaign.find({ userId }).lean(),
+      Transaction.find({ userId }).lean()
+    ]);
 
     // Total gross revenue generated from closed-won & paid deals
     const closedLeads = userLeads.filter(l => l.stage === 'closed_won' || l.stage === 'paid');
@@ -267,13 +392,11 @@ class Database {
       .reduce((sum, t) => sum + t.amount, 0);
 
     // Dynamic 12-Month Trajectory
-    // Build array based on current deals
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonthIdx = new Date().getMonth();
     const monthlyTrajectory = months.map((m, idx) => {
       if (idx > currentMonthIdx) return 0;
       if (totalRevenueGenerated === 0) return 0;
-      // Distribute revenue curve up to current month
       const factor = (idx + 1) / (currentMonthIdx + 1);
       return Math.round(totalRevenueGenerated * (factor * 0.4 + 0.6 * Math.pow(factor, 2)));
     });
@@ -309,17 +432,19 @@ class Database {
   // CAMPAIGNS
   // ==========================================
 
-  getCampaigns(userId) {
-    return this.data.campaigns.filter(c => c.userId === userId);
+  async getCampaigns(userId) {
+    await this.ensureConnected();
+    return Campaign.find({ userId }).sort({ createdAt: -1 }).lean();
   }
 
-  addCampaign(userId, { title, channel }) {
-    const user = this.getUserById(userId);
+  async addCampaign(userId, { title, channel }) {
+    await this.ensureConnected();
+    const user = await this.getUserById(userId);
     const refCode = user ? user.referralCode : 'AGENT-26';
     const campId = 'cmp-' + Date.now().toString().slice(-6);
     const slug = title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 
-    const newCampaign = {
+    const newCampaign = await Campaign.create({
       id: campId,
       userId: userId,
       title: title.trim(),
@@ -330,47 +455,49 @@ class Database {
       conversions: 0,
       revenue: 0,
       epc: 0.00,
-      utmUrl: `https://cuvasol.energy/f/${slug || 'campaign'}?ref=${refCode}&utm_source=custom&utm_medium=agent_link&utm_campaign=cuva_${slug || 'camp'}`,
-      createdAt: new Date().toISOString()
-    };
+      utmUrl: `https://cuvasol.energy/f/${slug || 'campaign'}?ref=${refCode}&utm_source=custom&utm_medium=agent_link&utm_campaign=cuva_${slug || 'camp'}`
+    });
 
-    this.data.campaigns.unshift(newCampaign);
-    this.saveData();
-    return newCampaign;
+    return newCampaign.toObject();
   }
 
-  trackClick(campaignId, refCode) {
-    const camp = this.data.campaigns.find(c => c.id === campaignId);
-    if (camp) {
-      camp.clicks = (camp.clicks || 0) + 1;
-      if (camp.clicks > 0 && camp.revenue > 0) {
-        camp.epc = Number((camp.revenue / camp.clicks).toFixed(2));
+  async trackClick(campaignId, refCode) {
+    await this.ensureConnected();
+    if (campaignId) {
+      const camp = await Campaign.findOne({ id: campaignId });
+      if (camp) {
+        camp.clicks = (camp.clicks || 0) + 1;
+        if (camp.clicks > 0 && camp.revenue > 0) {
+          camp.epc = Number((camp.revenue / camp.clicks).toFixed(2));
+        }
+        await camp.save();
       }
     }
-    this.data.clickLogs.push({
-      campaignId,
-      refCode,
-      timestamp: new Date().toISOString()
+    await ClickLog.create({
+      campaignId: campaignId || null,
+      refCode: refCode || null,
+      timestamp: new Date()
     });
-    this.saveData();
   }
 
   // ==========================================
   // LEADS CRM & COMMISSION AUTOMATION
   // ==========================================
 
-  getLeads(userId) {
-    return this.data.leads.filter(l => l.userId === userId);
+  async getLeads(userId) {
+    await this.ensureConnected();
+    return Lead.find({ userId }).sort({ createdAt: -1 }).lean();
   }
 
-  addLead(userId, leadData) {
-    const user = this.getUserById(userId);
+  async addLead(userId, leadData) {
+    await this.ensureConnected();
+    const user = await this.getUserById(userId);
     const tierRate = user ? (user.tierCommission || 0.15) : 0.15;
     const value = Number(leadData.value) || 20000;
     const commEst = Math.round(value * tierRate);
     const leadId = 'LD-' + Math.floor(100 + Math.random() * 900);
 
-    const newLead = {
+    const newLead = await Lead.create({
       id: leadId,
       userId: userId,
       campaignId: leadData.campaignId || null,
@@ -381,53 +508,50 @@ class Database {
       commission: commEst,
       date: new Date().toISOString().split('T')[0],
       source: leadData.source || 'Direct Referral Link',
-      notes: leadData.notes || 'Inbound solar interest via agent portal',
-      createdAt: new Date().toISOString()
-    };
-
-    this.data.leads.unshift(newLead);
+      notes: leadData.notes || 'Inbound solar interest via agent portal'
+    });
 
     // If attached to a campaign, increment leads count
     if (leadData.campaignId) {
-      const camp = this.data.campaigns.find(c => c.id === leadData.campaignId && c.userId === userId);
-      if (camp) camp.leads = (camp.leads || 0) + 1;
+      await Campaign.updateOne(
+        { id: leadData.campaignId, userId },
+        { $inc: { leads: 1 } }
+      );
     }
 
     // Add notification
-    this.data.notifications.unshift({
+    await Notification.create({
       id: 'nt-' + Date.now(),
       userId: userId,
       title: 'New Lead Added! 🎯',
       text: `${newLead.name} (${newLead.source}) was added with estimated deal value $${value.toLocaleString()}.`,
       time: 'Just now',
-      read: false,
-      createdAt: new Date().toISOString()
+      read: false
     });
 
-    this.saveData();
-    return newLead;
+    return newLead.toObject();
   }
 
-  updateLeadStage(userId, leadId, nextStage) {
-    const lead = this.data.leads.find(l => l.id === leadId && l.userId === userId);
+  async updateLeadStage(userId, leadId, nextStage) {
+    await this.ensureConnected();
+    const lead = await Lead.findOne({ id: leadId, userId });
     if (!lead) return null;
 
     const previousStage = lead.stage;
     lead.stage = nextStage;
 
-    // Check if transitioning to closed_won or paid
     const isNowWon = nextStage === 'closed_won' || nextStage === 'paid';
     const wasAlreadyWon = previousStage === 'closed_won' || previousStage === 'paid';
 
     if (isNowWon && !wasAlreadyWon) {
-      const user = this.getUserById(userId);
+      const user = await this.getUserById(userId);
       const tierRate = user ? (user.tierCommission || 0.15) : 0.15;
       const commAmount = Math.round(lead.value * tierRate);
       lead.commission = commAmount;
 
       // Add a commission transaction
       const txId = 'TX-' + Math.floor(1000 + Math.random() * 9000);
-      this.data.transactions.unshift({
+      await Transaction.create({
         id: txId,
         userId: userId,
         leadId: lead.id,
@@ -435,57 +559,55 @@ class Database {
         type: 'Commission',
         desc: `Deal Commission: ${lead.name} ($${lead.value.toLocaleString()} deal @ ${Math.round(tierRate * 100)}%)`,
         amount: commAmount,
-        status: 'Paid',
-        createdAt: new Date().toISOString()
+        status: 'Paid'
       });
 
       // Update linked campaign metrics if present
       if (lead.campaignId) {
-        const camp = this.data.campaigns.find(c => c.id === lead.campaignId);
+        const camp = await Campaign.findOne({ id: lead.campaignId });
         if (camp) {
           camp.conversions = (camp.conversions || 0) + 1;
           camp.revenue = (camp.revenue || 0) + lead.value;
           if (camp.clicks > 0) {
             camp.epc = Number((camp.revenue / camp.clicks).toFixed(2));
           }
+          await camp.save();
         }
       }
 
       // Add celebratory notification
-      this.data.notifications.unshift({
+      await Notification.create({
         id: 'nt-' + Date.now(),
         userId: userId,
         title: 'Commission Unlocked! 💰',
         text: `You earned $${commAmount.toLocaleString()} from closing "${lead.name}". Available for instant withdrawal.`,
         time: 'Just now',
-        read: false,
-        createdAt: new Date().toISOString()
+        read: false
       });
     }
 
-    this.saveData();
-    return lead;
+    await lead.save();
+    return lead.toObject();
   }
 
-  deleteLead(userId, leadId) {
-    const idx = this.data.leads.findIndex(l => l.id === leadId && l.userId === userId);
-    if (idx !== -1) {
-      this.data.leads.splice(idx, 1);
-      this.saveData();
-      return true;
-    }
-    return false;
+  async deleteLead(userId, leadId) {
+    await this.ensureConnected();
+    const res = await Lead.deleteOne({ id: leadId, userId });
+    return res.deletedCount > 0;
   }
 
   // ==========================================
   // WALLET & PAYOUT LEDGER
   // ==========================================
 
-  getWallet(userId) {
-    const userTransactions = this.data.transactions.filter(t => t.userId === userId);
-    const userLeads = this.data.leads.filter(l => l.userId === userId);
+  async getWallet(userId) {
+    await this.ensureConnected();
+    const [userTransactions, userLeads, user] = await Promise.all([
+      Transaction.find({ userId }).sort({ createdAt: -1 }).lean(),
+      Lead.find({ userId }).lean(),
+      this.getUserById(userId)
+    ]);
 
-    // Available balance = Sum of positive transactions (Commission, Bonus) + Payout deductions (negative)
     let availableBalance = 0;
     let totalPaidOut = 0;
     let lifetimeEarnings = 0;
@@ -495,15 +617,13 @@ class Database {
         availableBalance += Number(t.amount) || 0;
         lifetimeEarnings += Number(t.amount) || 0;
       } else if (t.type === 'Payout') {
-        availableBalance += Number(t.amount); // negative number
+        availableBalance += Number(t.amount); // negative amount
         totalPaidOut += Math.abs(Number(t.amount));
       }
     });
 
     if (availableBalance < 0) availableBalance = 0;
 
-    // Pending in pipeline = estimated commissions for leads in 'proposal'
-    const user = this.getUserById(userId);
     const tierRate = user ? (user.tierCommission || 0.15) : 0.15;
     const proposalLeads = userLeads.filter(l => l.stage === 'proposal');
     const pendingBalance = proposalLeads.reduce((sum, l) => sum + Math.round(l.value * tierRate), 0);
@@ -517,13 +637,14 @@ class Database {
     };
   }
 
-  requestPayout(userId, amount, method) {
+  async requestPayout(userId, amount, method) {
+    await this.ensureConnected();
     const num = Number(amount);
     if (isNaN(num) || num <= 0) {
       throw new Error('Please enter a valid withdrawal amount.');
     }
 
-    const currentWallet = this.getWallet(userId);
+    const currentWallet = await this.getWallet(userId);
     if (num > currentWallet.availableBalance) {
       throw new Error(`Requested amount ($${num.toLocaleString()}) exceeds your available balance ($${currentWallet.availableBalance.toLocaleString()}).`);
     }
@@ -532,76 +653,69 @@ class Database {
     const payoutId = 'PO-' + Math.floor(1000 + Math.random() * 9000);
     const dateStr = new Date().toISOString().split('T')[0];
 
-    // Add negative transaction
-    const tx = {
+    const tx = await Transaction.create({
       id: txId,
       userId: userId,
       date: dateStr,
       type: 'Payout',
       desc: `Withdrawal via ${method || 'Direct Bank Deposit'}`,
       amount: -num,
-      status: 'Completed',
-      createdAt: new Date().toISOString()
-    };
-    this.data.transactions.unshift(tx);
+      status: 'Completed'
+    });
 
-    this.data.payouts.unshift({
+    await Payout.create({
       id: payoutId,
       userId: userId,
       amount: num,
       method: method,
       status: 'Completed',
-      date: dateStr,
-      createdAt: new Date().toISOString()
+      date: dateStr
     });
 
-    this.data.notifications.unshift({
+    await Notification.create({
       id: 'nt-' + Date.now(),
       userId: userId,
       title: 'Payout Processed! 💸',
       text: `Your withdrawal of $${num.toLocaleString()} via ${method} has been disbursed.`,
       time: 'Just now',
-      read: false,
-      createdAt: new Date().toISOString()
+      read: false
     });
 
-    this.saveData();
-    return { wallet: this.getWallet(userId), tx };
+    const updatedWallet = await this.getWallet(userId);
+    return { wallet: updatedWallet, tx: tx.toObject() };
   }
 
   // ==========================================
   // MARKETING ASSET VAULT
   // ==========================================
 
-  getAssets() {
-    return this.data.assets;
+  async getAssets() {
+    await this.ensureConnected();
+    return Asset.find().lean();
   }
 
-  useAsset(assetId) {
-    const ast = this.data.assets.find(a => a.id === assetId);
-    if (ast) {
-      ast.downloads = (ast.downloads || 0) + 1;
-      this.saveData();
-      return ast;
-    }
-    return null;
+  async useAsset(assetId) {
+    await this.ensureConnected();
+    const ast = await Asset.findOneAndUpdate(
+      { id: assetId },
+      { $inc: { downloads: 1 } },
+      { new: true }
+    ).lean();
+    return ast;
   }
 
   // ==========================================
   // NOTIFICATIONS
   // ==========================================
 
-  getNotifications(userId) {
-    return this.data.notifications.filter(n => n.userId === userId);
+  async getNotifications(userId) {
+    await this.ensureConnected();
+    return Notification.find({ userId }).sort({ createdAt: -1 }).lean();
   }
 
-  markNotificationsRead(userId) {
-    this.data.notifications.forEach(n => {
-      if (n.userId === userId) {
-        n.read = true;
-      }
-    });
-    this.saveData();
+  async markNotificationsRead(userId) {
+    await this.ensureConnected();
+    await Notification.updateMany({ userId }, { $set: { read: true } });
     return true;
   }
 
@@ -609,23 +723,31 @@ class Database {
   // PUBLIC LEAD CAPTURE & ATTRIBUTION
   // ==========================================
 
-  submitPublicLead({ refCode, name, contact, value, notes, campaignSlug }) {
-    // Find matching agent
+  async submitPublicLead({ refCode, name, contact, value, notes, campaignSlug }) {
+    await this.ensureConnected();
     let user = null;
     if (refCode) {
-      user = this.data.users.find(u =>
-        u.referralCode?.toLowerCase() === refCode.toLowerCase() ||
-        u.customSlug?.toLowerCase().includes(refCode.toLowerCase())
-      );
+      user = await User.findOne({
+        $or: [
+          { referralCode: new RegExp(`^${refCode}$`, 'i') },
+          { customSlug: new RegExp(refCode, 'i') }
+        ]
+      }).lean();
     }
     if (!user) {
-      // Fallback to default active agent
-      user = this.data.users[0];
+      user = await User.findOne().lean();
+    }
+
+    if (!user) {
+      throw new Error('No agent profile found to assign lead to.');
     }
 
     let campaignId = null;
     if (campaignSlug && user) {
-      const camp = this.data.campaigns.find(c => c.userId === user.id && c.utmUrl?.includes(campaignSlug));
+      const camp = await Campaign.findOne({
+        userId: user.id,
+        utmUrl: new RegExp(campaignSlug, 'i')
+      }).lean();
       if (camp) campaignId = camp.id;
     }
 
@@ -643,27 +765,24 @@ class Database {
   // DEVELOPER TESTING HELPERS
   // ==========================================
 
-  seedSampleData(userId) {
-    const user = this.getUserById(userId);
+  async seedSampleData(userId) {
+    await this.ensureConnected();
+    const user = await this.getUserById(userId);
     if (!user) return false;
 
     // Add sample campaigns
-    const camp1 = this.addCampaign(userId, { title: 'Residential Solar Zero-Down 2026', channel: 'TikTok & Meta Video Ads' });
-    camp1.clicks = 480;
-    camp1.leads = 6;
-    camp1.conversions = 2;
-    camp1.revenue = 38000;
-    camp1.epc = 79.16;
+    const camp1 = await this.addCampaign(userId, { title: 'Residential Solar Zero-Down 2026', channel: 'TikTok & Meta Video Ads' });
+    await Campaign.updateOne({ id: camp1.id }, {
+      $set: { clicks: 480, leads: 6, conversions: 2, revenue: 38000, epc: 79.16 }
+    });
 
-    const camp2 = this.addCampaign(userId, { title: 'Commercial Micro-Grid B2B Outreach', channel: 'LinkedIn B2B InMail' });
-    camp2.clicks = 210;
-    camp2.leads = 4;
-    camp2.conversions = 1;
-    camp2.revenue = 65000;
-    camp2.epc = 309.52;
+    const camp2 = await this.addCampaign(userId, { title: 'Commercial Micro-Grid B2B Outreach', channel: 'LinkedIn B2B InMail' });
+    await Campaign.updateOne({ id: camp2.id }, {
+      $set: { clicks: 210, leads: 4, conversions: 1, revenue: 65000, epc: 309.52 }
+    });
 
     // Add sample leads
-    this.addLead(userId, {
+    await this.addLead(userId, {
       name: 'Apex Precision Logistics',
       contact: 'fleet@apexlogistics.com',
       value: 65000,
@@ -673,7 +792,7 @@ class Database {
       campaignId: camp2.id
     });
 
-    this.addLead(userId, {
+    await this.addLead(userId, {
       name: 'Dr. Michael Chen (Residential)',
       contact: 'm.chen@stanfordalumni.org',
       value: 24000,
@@ -683,7 +802,7 @@ class Database {
       campaignId: camp1.id
     });
 
-    this.addLead(userId, {
+    await this.addLead(userId, {
       name: 'Redwood Valley Winery',
       contact: 'ops@redwoodwinery.com',
       value: 42000,
@@ -692,7 +811,7 @@ class Database {
       notes: 'Looking for 30% peak demand shaving for cooling facilities.'
     });
 
-    this.addLead(userId, {
+    await this.addLead(userId, {
       name: 'Sophia & Jason Martinez',
       contact: 'martinez.fam@gmail.com',
       value: 18500,
@@ -702,19 +821,48 @@ class Database {
       campaignId: camp1.id
     });
 
-    this.saveData();
     return true;
   }
 
-  resetUserData(userId) {
-    this.data.campaigns = this.data.campaigns.filter(c => c.userId !== userId);
-    this.data.leads = this.data.leads.filter(l => l.userId !== userId);
-    this.data.transactions = this.data.transactions.filter(t => t.userId !== userId);
-    this.data.payouts = this.data.payouts.filter(p => p.userId !== userId);
-    this.data.notifications = this.data.notifications.filter(n => n.userId !== userId);
-    this.saveData();
+  async resetUserData(userId) {
+    await this.ensureConnected();
+    await Promise.all([
+      Campaign.deleteMany({ userId }),
+      Lead.deleteMany({ userId }),
+      Transaction.deleteMany({ userId }),
+      Payout.deleteMany({ userId }),
+      Notification.deleteMany({ userId })
+    ]);
     return true;
+  }
+
+  async getHealthStatus() {
+    try {
+      await this.ensureConnected();
+      const [usersCount, leadsCount, campaignsCount] = await Promise.all([
+        User.countDocuments(),
+        Lead.countDocuments(),
+        Campaign.countDocuments()
+      ]);
+
+      return {
+        status: 'connected',
+        database: mongoose.connection.name || 'lumiere_botanicals',
+        host: mongoose.connection.host,
+        readyState: mongoose.connection.readyState,
+        usersCount,
+        leadsCount,
+        campaignsCount
+      };
+    } catch (err) {
+      return {
+        status: 'error',
+        error: err.message,
+        database: 'lumiere_botanicals',
+        readyState: mongoose.connection.readyState
+      };
+    }
   }
 }
 
-export const db = new Database();
+export const db = new DatabaseService();

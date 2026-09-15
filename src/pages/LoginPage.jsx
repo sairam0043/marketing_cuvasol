@@ -36,28 +36,33 @@ export function LoginPage({ onNavigate }) {
 
   return (
     <div className="auth-page-container">
-      <div className="auth-card-wrap">
+      <div className="auth-card-wrap" style={{ maxWidth: 460 }}>
         <button onClick={() => onNavigate('landing')} className="auth-back-link">
-          ← Back to Cuvasol Home
+          ← Back to Home
         </button>
 
         <div className="auth-card glass-card">
           <div className="auth-header">
-            <a href="#landing" onClick={() => onNavigate('landing')} className="auth-logo" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none', marginBottom: '1.25rem' }}>
+            <a
+              href="#landing"
+              onClick={() => onNavigate('landing')}
+              className="auth-logo"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none', marginBottom: '1.25rem' }}
+            >
               <img src="/assets/logo.png" alt="Cuvasol" style={{ height: 40, width: 40, objectFit: 'contain' }} />
               <span style={{ fontSize: '1.5rem', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)' }}>
                 Cuvasol
               </span>
             </a>
-            <h2>Agent Cloud Portal</h2>
-            <p>Sign in to access your campaigns, live pipeline, and commissions.</p>
+            <h2>Welcome Back</h2>
+            <p>Sign in with your email and password to view your referral code and stats.</p>
           </div>
 
-          {/* 1-Click Fast Reviewer Demo Login */}
+          {/* 1-Click Fast Demo Login */}
           <div className="demo-quick-login-box">
             <div className="demo-login-info">
-              <span>⚡ Fast Reviewer Login</span>
-              <span>Test full dashboard with 1 click</span>
+              <span>⚡ Quick Preview Demo</span>
+              <span>Test dashboard with 1 click</span>
             </div>
             <button
               type="button"
@@ -69,16 +74,16 @@ export function LoginPage({ onNavigate }) {
             </button>
           </div>
 
-          <div className="auth-divider"><span>Or Sign In with Credentials</span></div>
+          <div className="auth-divider"><span>Or Sign In with Email</span></div>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label className="form-label" htmlFor="react-login-email">Agent Email Address</label>
+              <label className="form-label" htmlFor="react-login-email">Email Address</label>
               <input
                 id="react-login-email"
                 type="email"
                 className="form-control"
-                placeholder="e.g. agent@cleanenergy.com"
+                placeholder="e.g. yourname@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -105,17 +110,17 @@ export function LoginPage({ onNavigate }) {
             <button
               type="submit"
               className="btn btn-primary w-full btn-lg"
-              style={{ marginTop: '1rem' }}
+              style={{ marginTop: '1.25rem' }}
               disabled={isSubmitting}
             >
-              <span>{isSubmitting ? 'Signing in...' : 'Sign In to Agent Portal ➔'}</span>
+              <span>{isSubmitting ? 'Signing in...' : 'Sign In to Dashboard ➔'}</span>
             </button>
           </form>
 
           <div className="auth-footer">
-            Don't have an agent account yet?{' '}
+            Don't have an account yet?{' '}
             <a href="#signup" onClick={(e) => { e.preventDefault(); onNavigate('signup'); }}>
-              Apply as Agent
+              Create an Account
             </a>
           </div>
         </div>

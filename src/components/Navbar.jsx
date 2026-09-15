@@ -110,7 +110,7 @@ export function Navbar({ onNavigate }) {
                 className="btn btn-primary btn-sm"
                 onClick={() => onNavigate('dashboard')}
               >
-                <span>Portal</span>
+                <span>Referral Hub ➔</span>
               </button>
               <button className="btn btn-secondary btn-sm" onClick={logout}>
                 Sign Out
@@ -122,7 +122,7 @@ export function Navbar({ onNavigate }) {
                 Sign In
               </button>
               <button className="btn btn-primary btn-sm" onClick={() => onNavigate('signup')}>
-                Join as Agent
+                <span>Sign Up Free 🚀</span>
               </button>
             </>
           )}

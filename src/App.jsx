@@ -18,7 +18,8 @@ function MainApp() {
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.slice(1) || 'landing';
-      const [main, sub] = hash.split('/');
+      const [mainWithQuery, sub] = hash.split('/');
+      const [main] = mainWithQuery.split('?');
 
       if (main === 'dashboard') {
         if (!isAuthenticated && !loading) {
@@ -29,7 +30,7 @@ function MainApp() {
         setRoute('dashboard');
         setDashTab(sub || 'overview');
       } else {
-        setRoute(main);
+        setRoute(main || 'landing');
       }
     };
 
