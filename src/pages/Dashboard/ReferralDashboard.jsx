@@ -44,7 +44,7 @@ export function ReferralDashboard({ onNavigateLanding }) {
     fetchReferralStats();
   }, [fetchReferralStats]);
 
-  const referralCode = referralData.referralCode || user?.referralCode || 'AGENT-26';
+  const referralCode = referralData?.referralCode || user?.referralCode || 'AGENT-26';
   const studentInviteLink = `https://tutor.cuvasol.com/register/student?ref=${referralCode}`;
   const partnerInviteLink = `${window.location.origin}/#signup?ref=${referralCode}`;
 
@@ -72,6 +72,8 @@ export function ReferralDashboard({ onNavigateLanding }) {
     showToast('Marketer partner invite link copied! 🤝', 'success');
     setTimeout(() => setCopiedPartnerLink(false), 2500);
   };
+
+  const handleCopyLink = handleCopyStudentLink;
 
   const handleShareWhatsApp = () => {
     const message = `🎓 Hey! Join me on Cuvasol Tutor for high-quality 1-on-1 tutoring classes with expert teachers!\n\n👉 Register your student account here:\n${studentInviteLink}\n\nUse my invite code: ${referralCode} to get started!`;
@@ -472,7 +474,7 @@ export function ReferralDashboard({ onNavigateLanding }) {
                 <div className="badge-pulse-dot" style={{ margin: '0 auto 1rem auto' }}></div>
                 <p>Loading referral records from MongoDB...</p>
               </div>
-            ) : referralData.referredUsers.length === 0 ? (
+            ) : (!referralData?.referredUsers || referralData.referredUsers.length === 0) ? (
               <div style={{
                 padding: '3.5rem 1.5rem',
                 textAlign: 'center',
@@ -485,8 +487,8 @@ export function ReferralDashboard({ onNavigateLanding }) {
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: 420, margin: '0 auto 1.5rem auto' }}>
                   Share your referral code <code style={{ color: '#00f0ff', background: 'rgba(0, 240, 255, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>{referralCode}</code> with your network. Once someone signs up, their profile will appear here instantly!
                 </p>
-                <button onClick={handleCopyLink} className="btn btn-primary btn-sm">
-                  <span>Copy Your Referral Link ➔</span>
+                <button onClick={handleCopyStudentLink} className="btn btn-primary btn-sm">
+                  <span>Copy Student Invite Link ➔</span>
                 </button>
               </div>
             ) : (
@@ -501,7 +503,7 @@ export function ReferralDashboard({ onNavigateLanding }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {referralData.referredUsers.map((refUser, idx) => (
+                    {(referralData?.referredUsers || []).map((refUser, idx) => (
                       <tr
                         key={refUser.id || idx}
                         style={{
