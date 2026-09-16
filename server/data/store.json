@@ -511,6 +511,14 @@
       "type": "PDF Presentation",
       "downloads": 315,
       "content": "Full 18-slide executive pitch deck with financial models, ROI projections, ESG compliance certifications, battery discharge peak shaving graphs, and customer case studies."
+    },
+    {
+      "id": "ast-05",
+      "category": "social_post",
+      "title": "Cuvasol Tutor Student Referral WhatsApp & Social Pitch",
+      "type": "WhatsApp & Social Copy",
+      "downloads": 950,
+      "content": "Hi there,\n\n🎉 I’m excited to share something new with you!\n\nI’m now part of the Cuvasol Tutor Referral Program! 🙌\n\nThe Cuvasol Tutor community has already grown to 250+ tutors, and I can now refer students to the platform and earn rewards. 💰\n\nIf you or someone you know is looking for online tutoring, academic support, or extracurricular classes, you can register through my referral link:\n\nA referral is considered successful when the student registers through my link and completes a class on Cuvasol.\n\nI’d really appreciate it if you could share this with students, parents, friends, or anyone looking for a tutor.\n\n✨ Register through my link and start learning with Cuvasol Tutor!\n\nI invite you to register as a student on Cuvasol Tutor using my referral code: {{referral_code}} or link:\nhttps://tutor.cuvasol.com/register/student?ref={{referral_code}}\n\nStart your learning journey today!"
     }
   ],
   "clickLogs": []

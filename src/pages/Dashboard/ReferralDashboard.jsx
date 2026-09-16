@@ -44,9 +44,36 @@ export function ReferralDashboard({ onNavigateLanding }) {
     fetchReferralStats();
   }, [fetchReferralStats]);
 
-  const referralCode = referralData?.referralCode || user?.referralCode || 'AGENT-26';
+  const referralCode = referralData?.referralCode || user?.referralCode || 'SARIT1218';
   const studentInviteLink = `https://tutor.cuvasol.com/register/student?ref=${referralCode}`;
   const partnerInviteLink = `${window.location.origin}/#signup?ref=${referralCode}`;
+
+  const formatStudentReferralMessage = (code) => {
+    const c = code || 'SARIT1218';
+    const link = `https://tutor.cuvasol.com/register/student?ref=${c}`;
+    return `Hi there,
+
+🎉 I’m excited to share something new with you!
+
+I’m now part of the Cuvasol Tutor Referral Program! 🙌
+
+The Cuvasol Tutor community has already grown to 250+ tutors, and I can now refer students to the platform and earn rewards. 💰
+
+If you or someone you know is looking for online tutoring, academic support, or extracurricular classes, you can register through my referral link:
+
+A referral is considered successful when the student registers through my link and completes a class on Cuvasol.
+
+I’d really appreciate it if you could share this with students, parents, friends, or anyone looking for a tutor. 
+
+✨ Register through my link and start learning with Cuvasol Tutor!
+
+I invite you to register as a student on Cuvasol Tutor using my referral code: ${c} or link:
+${link}
+
+Start your learning journey today!`;
+  };
+
+  const formattedStudentMessage = formatStudentReferralMessage(referralCode);
 
   const [activeLinkTab, setActiveLinkTab] = useState('student'); // 'student' or 'partner'
   const [copiedStudentLink, setCopiedStudentLink] = useState(false);
@@ -60,9 +87,9 @@ export function ReferralDashboard({ onNavigateLanding }) {
   };
 
   const handleCopyStudentLink = () => {
-    navigator.clipboard.writeText(studentInviteLink);
+    navigator.clipboard.writeText(formattedStudentMessage);
     setCopiedStudentLink(true);
-    showToast('Student invite link for tutor.cuvasol.com copied! 🎓', 'success');
+    showToast('Referral invitation copied to clipboard! 📋', 'success');
     setTimeout(() => setCopiedStudentLink(false), 2500);
   };
 
@@ -76,8 +103,7 @@ export function ReferralDashboard({ onNavigateLanding }) {
   const handleCopyLink = handleCopyStudentLink;
 
   const handleShareWhatsApp = () => {
-    const message = `🎓 Hey! Join me on Cuvasol Tutor for high-quality 1-on-1 tutoring classes with expert teachers!\n\n👉 Register your student account here:\n${studentInviteLink}\n\nUse my invite code: ${referralCode} to get started!`;
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(formattedStudentMessage)}`;
     window.open(whatsappUrl, '_blank');
   };
 
@@ -363,7 +389,7 @@ export function ReferralDashboard({ onNavigateLanding }) {
           {activeLinkTab === 'student' ? (
             <div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: '0 0 1rem 0' }}>
-                Share this link with students and parents. When they click it, your referral code <strong style={{ color: '#00f0ff' }}>{referralCode}</strong> is automatically pre-filled on <strong>tutor.cuvasol.com</strong>. When they complete their first class, you earn <strong>₹500</strong>!
+                Share your referral link with students and parents. When they click it, your referral code <strong style={{ color: '#00f0ff' }}>{referralCode}</strong> is automatically applied on <strong>tutor.cuvasol.com</strong>. When they complete their first class, you earn <strong>₹500</strong>!
               </p>
 
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>

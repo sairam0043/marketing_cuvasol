@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 import { useToast } from '../../context/ToastContext';
 
 export function AssetsTab({ onPreviewAsset }) {
+  const { user } = useAuth();
   const { assets, useAsset } = useData();
   const { showToast } = useToast();
   const [filter, setFilter] = useState('all');
@@ -12,7 +14,15 @@ export function AssetsTab({ onPreviewAsset }) {
     : assets.filter(a => a.category === filter);
 
   const handleFastCopy = (ast) => {
-    navigator.clipboard.writeText(ast.content);
+    const refCode = user?.referralCode || 'SARIT1218';
+    const agentName = user?.name || 'Partner Agent';
+    const processed = ast.content
+      .replace(/\{\{referral_code\}\}/g, refCode)
+      .replace(/\{\{agent_name\}\}/g, agentName)
+      .replace(/\{\{first_name\}\}/g, 'there')
+      .replace(/\{\{company_name\}\}/g, 'your business');
+
+    navigator.clipboard.writeText(processed);
     if (useAsset) useAsset(ast.id);
     showToast('Marketing asset copied to clipboard! 📋', 'success');
   };

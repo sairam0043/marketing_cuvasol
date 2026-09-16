@@ -1,13 +1,24 @@
 import React from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 export function ScriptPreviewModal({ asset, onClose }) {
+  const { user } = useAuth();
   const { showToast } = useToast();
 
   if (!asset) return null;
 
+  const refCode = user?.referralCode || 'SARIT1218';
+  const agentName = user?.name || 'Partner Agent';
+
+  const processedContent = asset.content
+    .replace(/\{\{referral_code\}\}/g, refCode)
+    .replace(/\{\{agent_name\}\}/g, agentName)
+    .replace(/\{\{first_name\}\}/g, 'there')
+    .replace(/\{\{company_name\}\}/g, 'your business');
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(asset.content);
+    navigator.clipboard.writeText(processedContent);
     showToast('Marketing script copied to clipboard! 📋', 'success');
     onClose();
   };
@@ -30,7 +41,7 @@ export function ScriptPreviewModal({ asset, onClose }) {
             color: '#fff',
             lineHeight: 1.5
           }}>
-            {asset.content}
+            {processedContent}
           </pre>
         </div>
         <div className="modal-footer">
