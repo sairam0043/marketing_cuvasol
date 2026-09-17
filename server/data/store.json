@@ -1,0 +1,525 @@
+{
+  "users": [
+    {
+      "id": "CU-7390",
+      "email": "demo@cuvasol.energy",
+      "passwordHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+      "name": "Sarah Jenkins",
+      "tier": "Platinum Agent",
+      "tierCommission": 0.15,
+      "avatar": "SJ",
+      "joinedDate": "Oct 2025",
+      "referralCode": "SARAH-CLEAN-26",
+      "customSlug": "cuvasol.energy/a/sarahj",
+      "payoutMethod": "Direct Deposit (Chase ****4812)",
+      "niche": [
+        "Residential Solar",
+        "Commercial Storage",
+        "EV Fleet Infra"
+      ],
+      "token": "tok_demo_sarah_jenkins_2026",
+      "notificationSettings": {
+        "emailLeadAlerts": true,
+        "smsPayoutAlerts": true,
+        "weeklyAdDrops": true
+      }
+    },
+    {
+      "id": "CU-8323",
+      "email": "david@testgrowth.com",
+      "passwordHash": "ed6029abeb5c92e91f0f7ab4ff860fb80a85b94c04c128df0f8cb4855939966d",
+      "name": "David Test",
+      "tier": "Gold Agent",
+      "tierCommission": 0.12,
+      "avatar": "DT",
+      "joinedDate": "Sep 2026",
+      "referralCode": "DAVIDTEST-26",
+      "customSlug": "cuvasol.energy/a/davidtest",
+      "payoutMethod": "Direct Bank Deposit (ACH)",
+      "niche": [
+        "Meta Ads"
+      ],
+      "token": "tok_e9fd2aa02328701768568df78c2ba37215fefa83e5953b23",
+      "notificationSettings": {
+        "emailLeadAlerts": true,
+        "smsPayoutAlerts": true,
+        "weeklyAdDrops": true
+      }
+    },
+    {
+      "id": "CU-9304",
+      "email": "marcus@vancegrowth.io",
+      "passwordHash": "ffdc78bab1fcac77e9250b3208c155cdc4d0db681e2b623b60b2e410e93594c2",
+      "name": "Marcus Vance Sr.",
+      "tier": "Gold Agent",
+      "tierCommission": 0.12,
+      "avatar": "MV",
+      "joinedDate": "Sep 2026",
+      "referralCode": "MARCUSVANC-26",
+      "customSlug": "cuvasol.energy/a/marcusvance",
+      "payoutMethod": "Direct Bank Deposit (ACH)",
+      "niche": [
+        "TikTok & Reels",
+        "Meta / FB Ads"
+      ],
+      "token": "tok_26ec83d65345d7d3426c43653135ee89a5c1da9ece5dd664",
+      "notificationSettings": {
+        "emailLeadAlerts": true,
+        "smsPayoutAlerts": true,
+        "weeklyAdDrops": true
+      }
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "cmp-764292",
+      "userId": "CU-9304",
+      "title": "Texas Solar TikTok Blitz",
+      "channel": "TikTok Video Ads",
+      "status": "Active",
+      "clicks": 0,
+      "leads": 1,
+      "conversions": 1,
+      "revenue": 60000,
+      "epc": 0,
+      "utmUrl": "https://cuvasol.energy/f/texas-solar-tiktok-blitz?ref=MARCUSVANC-26&utm_source=custom&utm_medium=agent_link&utm_campaign=cuva_texas-solar-tiktok-blitz",
+      "createdAt": "2026-09-10T05:06:04.292Z"
+    },
+    {
+      "id": "cmp-01",
+      "userId": "CU-7390",
+      "title": "Zero-Down Residential Solar 2026",
+      "channel": "Meta & TikTok Video Ads",
+      "status": "Active",
+      "clicks": 1840,
+      "leads": 24,
+      "conversions": 7,
+      "revenue": 54600,
+      "epc": 2.85,
+      "utmUrl": "https://cuvasol.energy/f/zero-down-residential?ref=SARAH-CLEAN-26&utm_source=tiktok_reels&utm_medium=video_cpc&utm_campaign=cuva_zero-down-residential",
+      "createdAt": "2026-01-15T08:30:00.000Z"
+    },
+    {
+      "id": "cmp-02",
+      "userId": "CU-7390",
+      "title": "Commercial CleanTech Micro-Grids",
+      "channel": "LinkedIn B2B & Email Blast",
+      "status": "Active",
+      "clicks": 920,
+      "leads": 18,
+      "conversions": 4,
+      "revenue": 142000,
+      "epc": 8.4,
+      "utmUrl": "https://cuvasol.energy/f/commercial-microgrids?ref=SARAH-CLEAN-26&utm_source=linkedin_inmail&utm_medium=b2b_outreach&utm_campaign=cuva_commercial-microgrids",
+      "createdAt": "2026-02-01T10:00:00.000Z"
+    },
+    {
+      "id": "cmp-03",
+      "userId": "CU-7390",
+      "title": "Smart EV Charger + Battery Bundle",
+      "channel": "Google Search & Local SEO",
+      "status": "Active",
+      "clicks": 1450,
+      "leads": 12,
+      "conversions": 3,
+      "revenue": 51900,
+      "epc": 3.1,
+      "utmUrl": "https://cuvasol.energy/f/ev-storage-bundle?ref=SARAH-CLEAN-26&utm_source=google_ads&utm_medium=search_cpc&utm_campaign=cuva_ev-storage-bundle",
+      "createdAt": "2026-02-12T14:20:00.000Z"
+    }
+  ],
+  "leads": [
+    {
+      "id": "LD-786",
+      "userId": "CU-9304",
+      "campaignId": null,
+      "name": "Austin Biotech Labs",
+      "contact": "facilities@austinbiotech.com",
+      "stage": "new",
+      "value": 85000,
+      "commission": 10200,
+      "date": "2026-09-10",
+      "source": "Referral (MARCUSVANC-26)",
+      "notes": "Commercial Solar Microgrid . Est. Monthly Bill: ,400/mo",
+      "createdAt": "2026-09-10T05:06:10.247Z"
+    },
+    {
+      "id": "LD-122",
+      "userId": "CU-9304",
+      "campaignId": "cmp-764292",
+      "name": "Lone Star Logistics",
+      "contact": "procure@lonestarlog.com",
+      "stage": "closed_won",
+      "value": 60000,
+      "commission": 7200,
+      "date": "2026-09-10",
+      "source": "Texas Solar TikTok Blitz",
+      "notes": "120kW rooftop commercial solar installation",
+      "createdAt": "2026-09-10T05:06:04.299Z"
+    },
+    {
+      "id": "LD-869",
+      "userId": "CU-8323",
+      "campaignId": null,
+      "name": "Solar Fleet Co",
+      "contact": "info@solarfleet.com",
+      "stage": "closed_won",
+      "value": 50000,
+      "commission": 6000,
+      "date": "2026-09-10",
+      "source": "Meta Ads",
+      "notes": "Inbound solar interest via agent portal",
+      "createdAt": "2026-09-10T05:02:17.264Z"
+    },
+    {
+      "id": "LD-101",
+      "userId": "CU-7390",
+      "campaignId": "cmp-02",
+      "name": "Nexus Logistics Warehouse",
+      "contact": "dave@nexuslog.com",
+      "stage": "closed_won",
+      "value": 48000,
+      "commission": 7200,
+      "date": "2026-03-01",
+      "source": "LinkedIn B2B",
+      "notes": "Contract signed for 120kW rooftop solar system with battery backup.",
+      "createdAt": "2026-03-01T11:20:00.000Z"
+    },
+    {
+      "id": "LD-102",
+      "userId": "CU-7390",
+      "campaignId": "cmp-01",
+      "name": "Marcus & Elena Sterling",
+      "contact": "marcus.s@gmail.com",
+      "stage": "proposal",
+      "value": 16500,
+      "commission": 2475,
+      "date": "2026-03-08",
+      "source": "TikTok Reels",
+      "notes": "Requested 12kWh backup battery add-on and utility bill audit.",
+      "createdAt": "2026-03-08T09:15:00.000Z"
+    },
+    {
+      "id": "LD-103",
+      "userId": "CU-7390",
+      "campaignId": "cmp-02",
+      "name": "GreenWave Data Centers",
+      "contact": "procure@greenwave.io",
+      "stage": "contacted",
+      "value": 95000,
+      "commission": 14250,
+      "date": "2026-03-07",
+      "source": "Email Campaign",
+      "notes": "Technical scoping call scheduled with engineering lead.",
+      "createdAt": "2026-03-07T16:45:00.000Z"
+    },
+    {
+      "id": "LD-104",
+      "userId": "CU-7390",
+      "campaignId": "cmp-03",
+      "name": "David Cho (Residential)",
+      "contact": "david.cho@outlook.com",
+      "stage": "new",
+      "value": 14200,
+      "commission": 2130,
+      "date": "2026-03-09",
+      "source": "Google Ads",
+      "notes": "Submitted utility bill for instant ROI estimation.",
+      "createdAt": "2026-03-09T04:30:00.000Z"
+    },
+    {
+      "id": "LD-105",
+      "userId": "CU-7390",
+      "campaignId": "cmp-01",
+      "name": "Heritage Winery Estates",
+      "contact": "ops@heritagewines.com",
+      "stage": "paid",
+      "value": 62000,
+      "commission": 9300,
+      "date": "2026-02-20",
+      "source": "Referral Link",
+      "notes": "Commission disbursed to agent wallet ($9,300).",
+      "createdAt": "2026-02-20T13:10:00.000Z"
+    },
+    {
+      "id": "LD-106",
+      "userId": "CU-7390",
+      "campaignId": "cmp-02",
+      "name": "Vanguard Auto Dealership",
+      "contact": "fleet@vanguardauto.com",
+      "stage": "proposal",
+      "value": 38000,
+      "commission": 5700,
+      "date": "2026-03-08",
+      "source": "LinkedIn B2B",
+      "notes": "EV Level 3 Charger installation proposal under board review.",
+      "createdAt": "2026-03-08T18:00:00.000Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "TX-1480",
+      "userId": "CU-9304",
+      "date": "2026-09-10",
+      "type": "Payout",
+      "desc": "Withdrawal via Direct Bank Deposit (ACH)",
+      "amount": -2200,
+      "status": "Completed",
+      "createdAt": "2026-09-10T05:06:04.312Z"
+    },
+    {
+      "id": "TX-1271",
+      "userId": "CU-9304",
+      "leadId": "LD-122",
+      "date": "2026-09-10",
+      "type": "Commission",
+      "desc": "Deal Commission: Lone Star Logistics ($60,000 deal @ 12%)",
+      "amount": 7200,
+      "status": "Paid",
+      "createdAt": "2026-09-10T05:06:04.303Z"
+    },
+    {
+      "id": "TX-9090",
+      "userId": "CU-8323",
+      "date": "2026-09-10",
+      "type": "Payout",
+      "desc": "Withdrawal via Direct Bank Deposit",
+      "amount": -2000,
+      "status": "Completed",
+      "createdAt": "2026-09-10T05:02:23.682Z"
+    },
+    {
+      "id": "TX-1641",
+      "userId": "CU-8323",
+      "leadId": "LD-869",
+      "date": "2026-09-10",
+      "type": "Commission",
+      "desc": "Deal Commission: Solar Fleet Co ($50,000 deal @ 12%)",
+      "amount": 6000,
+      "status": "Paid",
+      "createdAt": "2026-09-10T05:02:17.274Z"
+    },
+    {
+      "id": "TX-9041",
+      "userId": "CU-7390",
+      "date": "2026-03-01",
+      "type": "Commission",
+      "desc": "Deal Commission: Nexus Logistics Warehouse ($48,000 deal @ 15%)",
+      "amount": 7200,
+      "status": "Paid",
+      "createdAt": "2026-03-01T11:25:00.000Z"
+    },
+    {
+      "id": "TX-8912",
+      "userId": "CU-7390",
+      "date": "2026-02-24",
+      "type": "Payout",
+      "desc": "Withdrawal to Chase Bank ****4812",
+      "amount": -5000,
+      "status": "Completed",
+      "createdAt": "2026-02-24T15:10:00.000Z"
+    },
+    {
+      "id": "TX-8834",
+      "userId": "CU-7390",
+      "date": "2026-02-20",
+      "type": "Commission",
+      "desc": "Deal Commission: Heritage Winery Estates ($62,000 deal @ 15%)",
+      "amount": 9300,
+      "status": "Paid",
+      "createdAt": "2026-02-20T13:15:00.000Z"
+    },
+    {
+      "id": "TX-8720",
+      "userId": "CU-7390",
+      "date": "2026-02-15",
+      "type": "Bonus",
+      "desc": "Q1 Milestone Deal Accelerator Bonus",
+      "amount": 1200,
+      "status": "Paid",
+      "createdAt": "2026-02-15T09:00:00.000Z"
+    }
+  ],
+  "payouts": [
+    {
+      "id": "PO-4457",
+      "userId": "CU-9304",
+      "amount": 2200,
+      "method": "Direct Bank Deposit (ACH)",
+      "status": "Completed",
+      "date": "2026-09-10",
+      "createdAt": "2026-09-10T05:06:04.312Z"
+    },
+    {
+      "id": "PO-1618",
+      "userId": "CU-8323",
+      "amount": 2000,
+      "method": "Direct Bank Deposit",
+      "status": "Completed",
+      "date": "2026-09-10",
+      "createdAt": "2026-09-10T05:02:23.682Z"
+    },
+    {
+      "id": "PO-1001",
+      "userId": "CU-7390",
+      "amount": 5000,
+      "method": "Direct Deposit (Chase Bank ****4812)",
+      "status": "Completed",
+      "date": "2026-02-24",
+      "createdAt": "2026-02-24T15:10:00.000Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "nt-1789016770247",
+      "userId": "CU-9304",
+      "title": "New Lead Added! 🎯",
+      "text": "Austin Biotech Labs (Referral (MARCUSVANC-26)) was added with estimated deal value $85,000.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:06:10.247Z"
+    },
+    {
+      "id": "nt-1789016764312",
+      "userId": "CU-9304",
+      "title": "Payout Processed! 💸",
+      "text": "Your withdrawal of $2,200 via Direct Bank Deposit (ACH) has been disbursed.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:06:04.312Z"
+    },
+    {
+      "id": "nt-1789016764303",
+      "userId": "CU-9304",
+      "title": "Commission Unlocked! 💰",
+      "text": "You earned $7,200 from closing \"Lone Star Logistics\". Available for instant withdrawal.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:06:04.303Z"
+    },
+    {
+      "id": "nt-1789016764299",
+      "userId": "CU-9304",
+      "title": "New Lead Added! 🎯",
+      "text": "Lone Star Logistics (Texas Solar TikTok Blitz) was added with estimated deal value $60,000.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:06:04.299Z"
+    },
+    {
+      "id": "nt-1789016764265",
+      "userId": "CU-9304",
+      "title": "Welcome to Cuvasol Agent Cloud! ⚡",
+      "text": "Your referral code is MARCUSVANC-26. Launch your first campaign to start earning.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:06:04.265Z"
+    },
+    {
+      "id": "nt-1789016543682",
+      "userId": "CU-8323",
+      "title": "Payout Processed! 💸",
+      "text": "Your withdrawal of $2,000 via Direct Bank Deposit has been disbursed.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:02:23.682Z"
+    },
+    {
+      "id": "nt-1789016537274",
+      "userId": "CU-8323",
+      "title": "Commission Unlocked! 💰",
+      "text": "You earned $6,000 from closing \"Solar Fleet Co\". Available for instant withdrawal.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:02:17.274Z"
+    },
+    {
+      "id": "nt-1789016537264",
+      "userId": "CU-8323",
+      "title": "New Lead Added! 🎯",
+      "text": "Solar Fleet Co (Meta Ads) was added with estimated deal value $50,000.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:02:17.264Z"
+    },
+    {
+      "id": "nt-1789016519589",
+      "userId": "CU-8323",
+      "title": "Welcome to Cuvasol Agent Cloud! ⚡",
+      "text": "Your referral code is DAVIDTEST-26. Launch your first campaign to start earning.",
+      "time": "Just now",
+      "read": false,
+      "createdAt": "2026-09-10T05:01:59.589Z"
+    },
+    {
+      "id": "nt-01",
+      "userId": "CU-7390",
+      "title": "Commission Received! 💰",
+      "text": "You earned $7,200.00 from Nexus Logistics Warehouse closing.",
+      "time": "March 1",
+      "read": false,
+      "createdAt": "2026-03-01T11:25:00.000Z"
+    },
+    {
+      "id": "nt-02",
+      "userId": "CU-7390",
+      "title": "New High-Intent Inbound Lead 🎯",
+      "text": "David Cho submitted rooftop inspection details via Google Ads.",
+      "time": "Yesterday",
+      "read": false,
+      "createdAt": "2026-03-09T04:30:00.000Z"
+    },
+    {
+      "id": "nt-03",
+      "userId": "CU-7390",
+      "title": "Platinum Tier Milestone Reached ★",
+      "text": "Congratulations! You unlocked Platinum 15% top-tier commission.",
+      "time": "2 weeks ago",
+      "read": true,
+      "createdAt": "2026-02-20T13:20:00.000Z"
+    }
+  ],
+  "assets": [
+    {
+      "id": "ast-01",
+      "category": "ad_copy",
+      "title": "High-Converting TikTok Hook: \"$0 Electric Bill in 2026\"",
+      "type": "Video Script",
+      "downloads": 425,
+      "content": "Hook: \"Stop paying $400/mo to your monopoly power company.\"\n\nBody: Cuvasol qualifies homeowners for zero upfront cost solar panels + battery back-up with guaranteed 40% rate locks. Takes 60 seconds to check eligibility at our portal link.\n\nCall To Action: \"Click the link below to get your instant AI solar estimate before federal credits shift!\""
+    },
+    {
+      "id": "ast-02",
+      "category": "email_sequence",
+      "title": "B2B Commercial CFO Cold Outreach Sequence (3-Touch)",
+      "type": "Email Template",
+      "downloads": 682,
+      "content": "Subject: Tax credit & 28% peak-demand shaving for {{company_name}}\n\nHi {{first_name}},\n\nMost commercial facility managers don't realize the 2026 Clean Energy ITC covers up to 40% of microgrid installations with an 18-month capital payback.\n\nWould you like a 1-page feasibility report tailored to your facility square footage?\n\nBest regards,\n{{agent_name}} | CleanTech Growth Partner"
+    },
+    {
+      "id": "ast-03",
+      "category": "social_post",
+      "title": "Instagram Carousel: 5 Solar Myths Debunked in 2026",
+      "type": "Social Graphic Pack",
+      "downloads": 894,
+      "content": "Slide 1: \"Solar is too expensive\" -> Fact: Zero down financing options lower month 1 bill.\nSlide 2: \"What happens during grid outages?\" -> Fact: Cuvasol smart batteries power critical loads 24/7.\nSlide 3: \"Roof replacement needed?\" -> Fact: Free structural roof inspection included.\nSlide 4: \"Does it lower home value?\" -> Fact: Clean energy increases equity by avg $15,000.\nSlide 5: \"Link in bio to calculate your solar tax savings in 60s.\""
+    },
+    {
+      "id": "ast-04",
+      "category": "pitch_deck",
+      "title": "Enterprise CleanTech Commercial Proposal & Model",
+      "type": "PDF Presentation",
+      "downloads": 315,
+      "content": "Full 18-slide executive pitch deck with financial models, ROI projections, ESG compliance certifications, battery discharge peak shaving graphs, and customer case studies."
+    },
+    {
+      "id": "ast-05",
+      "category": "social_post",
+      "title": "Cuvasol Tutor Student Referral WhatsApp & Social Pitch",
+      "type": "WhatsApp & Social Copy",
+      "downloads": 950,
+      "content": "Hi there,\n\n🎉 I’m excited to share something new with you!\n\nI’m now part of the Cuvasol Tutor Referral Program! 🙌\n\nThe Cuvasol Tutor community has already grown to 250+ tutors, and I can now refer students to the platform and earn rewards. 💰\n\nIf you or someone you know is looking for online tutoring, academic support, or extracurricular classes, you can register through my referral link:\n\nA referral is considered successful when the student registers through my link and completes a class on Cuvasol.\n\nI’d really appreciate it if you could share this with students, parents, friends, or anyone looking for a tutor.\n\n✨ Register through my link and start learning with Cuvasol Tutor!\n\nI invite you to register as a student on Cuvasol Tutor using my referral code: {{referral_code}} or link:\nhttps://tutor.cuvasol.com/register/student?ref={{referral_code}}\n\nStart your learning journey today!"
+    }
+  ],
+  "clickLogs": []
+}
