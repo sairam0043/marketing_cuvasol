@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export function ReferralDashboard({ onNavigateLanding }) {
   const { user, token, logout } = useAuth();
   const { showToast } = useToast();
+  const { theme, setTheme, THEMES } = useTheme();
+
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const currentThemeObj = THEMES.find(t => t.id === theme) || THEMES[0];
 
   const [referralData, setReferralData] = useState({
     referralCode: user?.referralCode || '',
@@ -149,13 +154,15 @@ Start your learning journey today!`;
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Top Navbar */}
       <header style={{
-        background: 'rgba(10, 16, 32, 0.85)',
+        background: 'var(--bg-glass)',
         backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--border-subtle)',
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        padding: '0.85rem 1.5rem'
+        padding: '0.85rem 1.5rem',
+        transition: 'all var(--transition-normal)'
       }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -170,22 +177,82 @@ Start your learning journey today!`;
               </span>
             </a>
             <span style={{
-              background: 'rgba(16, 185, 129, 0.15)',
-              color: '#34d399',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              background: 'var(--primary-light)',
+              color: 'var(--primary)',
+              border: '1px solid var(--border-glow)',
               borderRadius: '9999px',
-              padding: '2px 10px',
+              padding: '3px 10px',
               fontSize: '0.75rem',
               fontWeight: 600,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px'
+              gap: '6px'
             }}>
-              <span>●</span> MongoDB Connected
+              <span className="badge-pulse-dot" style={{ width: 6, height: 6 }}></span> MongoDB Connected
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {/* Theme Dropdown Toggle */}
+            <div style={{ position: 'relative' }}>
+              <button
+                className="theme-toggle-btn"
+                onClick={() => setThemeDropdownOpen(!themeDropdownOpen)}
+                title="Change Theme"
+              >
+                <span>{currentThemeObj.icon}</span>
+                <span style={{ fontSize: '0.8rem' }}>{currentThemeObj.name.split(' ')[0]}</span>
+              </button>
+
+              {themeDropdownOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '110%',
+                    right: 0,
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-medium)',
+                    borderRadius: 'var(--radius-md)',
+                    boxShadow: 'var(--shadow-lg)',
+                    padding: '0.4rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.2rem',
+                    minWidth: '160px',
+                    zIndex: 200,
+                  }}
+                >
+                  {THEMES.map(t => (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        setTheme(t.id);
+                        setThemeDropdownOpen(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.45rem 0.65rem',
+                        border: 'none',
+                        borderRadius: 'var(--radius-sm)',
+                        background: theme === t.id ? 'var(--primary-light)' : 'transparent',
+                        color: theme === t.id ? 'var(--primary)' : 'var(--text-primary)',
+                        fontWeight: theme === t.id ? 700 : 500,
+                        fontSize: '0.825rem',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        width: '100%',
+                      }}
+                    >
+                      <span>{t.icon}</span>
+                      <span>{t.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => onNavigateLanding('dashboard')}
               className="btn btn-secondary btn-sm"
@@ -195,7 +262,7 @@ Start your learning journey today!`;
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{ textAlign: 'right', display: 'none', md: 'block' }}>
-                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user?.name || 'Agent'}</div>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{user?.name || 'Agent'}</div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user?.email || 'agent@cuvasol.io'}</div>
               </div>
               <div className="user-avatar" style={{ width: 36, height: 36, fontSize: '0.85rem' }}>
