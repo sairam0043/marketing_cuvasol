@@ -7,6 +7,9 @@ import { Navbar } from './components/Navbar';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
+import { AboutPage } from './pages/AboutPage';
+import { FaqPage } from './pages/FaqPage';
+import { ContactPage } from './pages/ContactPage';
 import { DashboardLayout } from './pages/Dashboard/DashboardLayout';
 
 function MainApp() {
@@ -77,6 +80,18 @@ function MainApp() {
           <Navbar onNavigate={navigate} />
           <LandingPage onNavigate={navigate} />
         </>
+      )}
+
+      {route === 'about' && (
+        <AboutPage onNavigate={navigate} />
+      )}
+
+      {route === 'faq' && (
+        <FaqPage onNavigate={navigate} />
+      )}
+
+      {route === 'contact' && (
+        <ContactPage onNavigate={navigate} />
       )}
 
       {route === 'login' && (

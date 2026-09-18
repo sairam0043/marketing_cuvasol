@@ -19,7 +19,7 @@ export function Navbar({ onNavigate }) {
   const currentThemeObj = THEMES.find(t => t.id === theme) || THEMES[0];
 
   return (
-    <header className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
+    <header className="landing-nav">
       <div className="container nav-inner">
         {/* Clean Single Brand Logo */}
         <a href="#landing" onClick={() => onNavigate('landing')} className="brand-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }}>
@@ -29,16 +29,43 @@ export function Navbar({ onNavigate }) {
           </span>
         </a>
 
-        {/* Clean Essential Links */}
+        {/* Clean Essential Links: Only About Us, FAQ, Contact Us */}
         <ul className="nav-menu">
           <li>
-            <a href="#teach" className="nav-link">Programs</a>
+            <a
+              href="#about"
+              className="nav-link"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('about');
+              }}
+            >
+              About Us
+            </a>
           </li>
           <li>
-            <a href="#calculator" className="nav-link">Calculator</a>
+            <a
+              href="#faq"
+              className="nav-link"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('faq');
+              }}
+            >
+              FAQ
+            </a>
           </li>
           <li>
-            <a href="#faq" className="nav-link">FAQ</a>
+            <a
+              href="#contact"
+              className="nav-link"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate('contact');
+              }}
+            >
+              Contact Us
+            </a>
           </li>
         </ul>
 
