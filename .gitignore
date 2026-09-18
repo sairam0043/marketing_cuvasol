@@ -39,3 +39,7 @@ lerna-debug.log*
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Vite temporary files
+*.timestamp-*.mjs
+*.mjs.timestamp-*
