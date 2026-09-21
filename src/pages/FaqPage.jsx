@@ -74,14 +74,61 @@ export function FaqPage({ onNavigate }) {
 
           {/* Live Search Input */}
           <div style={{ maxWidth: 540, margin: '0 auto', position: 'relative' }}>
+            <span
+              style={{
+                position: 'absolute',
+                left: '1.25rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                fontSize: '1.1rem',
+                color: 'var(--primary)',
+                pointerEvents: 'none',
+                zIndex: 2
+              }}
+            >
+              🔍
+            </span>
             <input
               type="text"
-              placeholder="🔍 Search questions (e.g., payouts, earnings, code)..."
+              placeholder="Search questions (e.g., payouts, earnings, code)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="form-control"
-              style={{ padding: '1rem 1.4rem', borderRadius: '9999px', fontSize: '1rem', boxShadow: 'var(--shadow-md)' }}
+              className="form-control faq-search-input"
+              style={{
+                width: '100%',
+                padding: '1rem 3rem 1rem 3.1rem',
+                borderRadius: '9999px',
+                fontSize: '1rem',
+                boxShadow: 'var(--shadow-md)'
+              }}
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                aria-label="Clear search"
+                style={{
+                  position: 'absolute',
+                  right: '1.1rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'var(--bg-tertiary)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '26px',
+                  height: '26px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'var(--text-secondary)',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
       </section>
