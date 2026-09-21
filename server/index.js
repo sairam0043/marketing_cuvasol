@@ -492,8 +492,9 @@ app.post('/api/agent/reset-data', requireAuth, async (req, res) => {
 });
 
 if (!process.env.VERCEL) {
-  const server = app.listen(PORT, () => {
-    console.log(`🚀 Cuvasol Node.js API Server running on http://localhost:${PORT}`);
+  const HOST = process.env.HOST || '127.0.0.1';
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`🚀 Cuvasol Node.js API Server running on http://${HOST}:${PORT}`);
     // Trigger initial DB connection
     db.connect().catch(err => {
       console.error('Initial MongoDB connection attempt error:', err.message);
