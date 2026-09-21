@@ -413,6 +413,28 @@ p {
   color: var(--text-dim);
 }
 
+/* FAQ Search Input High-Contrast Styling */
+.faq-search-input {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1.5px solid var(--border-medium) !important;
+  caret-color: var(--primary) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.faq-search-input:focus {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px var(--primary-light), var(--shadow-md) !important;
+  outline: none !important;
+}
+
+.faq-search-input::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1 !important;
+}
+
 /* ==========================================================================
    AUTH PAGES (LOGIN & SIGNUP)
    ========================================================================== */
