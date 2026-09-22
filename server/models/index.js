@@ -27,7 +27,13 @@ const userSchema = new Schema({
     smsPayoutAlerts: { type: Boolean, default: true },
     weeklyAdDrops: { type: Boolean, default: true }
   }
-}, { timestamps: true });
+}, {
+  timestamps: true,
+  // The shared Cuvasol database already has a `users` collection owned by
+  // other products. Marketing/referral-agent accounts must stay isolated so
+  // an unrelated user with the same email is never treated as an agent.
+  collection: 'marketing_agents'
+});
 
 // --- CAMPAIGN SCHEMA ---
 const campaignSchema = new Schema({
